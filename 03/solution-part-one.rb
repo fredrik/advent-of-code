@@ -1,5 +1,14 @@
 #!/usr/bin/env ruby
 
+def parse_claim(claim)
+  # Example: '#1024 @ 232,558: 13x11'
+  m = /^\#\d+ @ (?<x>\d+),(?<y>\d+): (?<width>\d+)x(?<height>\d+)/.match(claim)
+  x, y = Integer(m['x']), Integer(m['y'])
+  w, h = Integer(m['width']), Integer(m['height'])
+
+  [x, y, w, h]
+end
+
 def coords_for_claim(x, y, w, h)
   # return array of coordinates covered by this claim.
   coords = []
@@ -11,28 +20,13 @@ def coords_for_claim(x, y, w, h)
   coords
 end
 
-# convert input to list of coords and width/height pairs.
-input = ARGF.map do |line|
-  # Example: '#1024 @ 232,558: 13x11'
-  m = /^\#\d+ @ (?<x>\d+),(?<y>\d+): (?<width>\d+)x(?<height>\d+)/.match(line)
-  x, y = Integer(m['x']), Integer(m['y'])
-  w, h = Integer(m['width']), Integer(m['height'])
-
-  [[x, y], [w, h]]
-end
-
 grid = Hash.new(0)
 
-coords_claimed = input.map do |claim|
-  x, y = claim.first
-  w, h = claim.last
-
-  coords = coords_for_claim(x, y, w, h)
-
-  coords.each do |coord|
+ARGF.each do |claim|
+  x, y, w, h = parse_claim(claim)
+  coords_for_claim(x, y, w, h).each do |coord|
     grid[coord] += 1
   end
 end
 
-overclaimed = grid.select { |_, count| count > 1 }.size
-puts overclaimed
+puts grid.select { |_, count| count > 1 }.size
