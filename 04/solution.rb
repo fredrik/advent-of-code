@@ -47,8 +47,6 @@ end
 
 sleepiest_guard = minutes_per_guard.sort_by { |guard_id, minutes| -minutes }.first.first
 
-# but when did he sleep?
-
 most_slept_minute = sleep_times
   .select { |guard_id, _| guard_id == sleepiest_guard }.map(&:last)
   .sort.chunk { |n| n }
@@ -60,3 +58,19 @@ most_slept_minute = sleep_times
 puts "sleepiest: #{sleepiest_guard}"
 puts "most slept minute: #{most_slept_minute}"
 puts "=> #{most_slept_minute * sleepiest_guard}"
+
+
+# -- part two
+
+guard_minutes = Hash.new(0)
+
+sleep_times.each do |guard_id, minute|
+  guard_minutes[[guard_id, minute]] += 1
+end
+
+most_slept_minute = guard_minutes.sort_by { |key, count|  -count }.first
+
+(guard_id, minute), count = most_slept_minute
+
+puts "#{guard_id} slept #{count} during minute #{minute}"
+puts "=> #{guard_id * minute}"
