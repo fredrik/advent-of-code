@@ -2,11 +2,12 @@
 
 def parse_claim(claim)
   # Example: '#1024 @ 232,558: 13x11'
-  m = /^\#\d+ @ (?<x>\d+),(?<y>\d+): (?<width>\d+)x(?<height>\d+)/.match(claim)
+  m = /^\#(?<id>\d+) @ (?<x>\d+),(?<y>\d+): (?<width>\d+)x(?<height>\d+)/.match(claim)
+  id = Integer(m['id'])
   x, y = Integer(m['x']), Integer(m['y'])
   w, h = Integer(m['width']), Integer(m['height'])
 
-  [x, y, w, h]
+  [id, x, y, w, h]
 end
 
 def coords_for_claim(x, y, w, h)
@@ -21,12 +22,23 @@ def coords_for_claim(x, y, w, h)
 end
 
 grid = Hash.new(0)
+claims_made = []
 
 ARGF.each do |claim|
-  x, y, w, h = parse_claim(claim)
-  coords_for_claim(x, y, w, h).each do |coord|
+  id, x, y, w, h = parse_claim(claim)
+  coords = coords_for_claim(x, y, w, h)
+  coords.each do |coord|
     grid[coord] += 1
   end
+  claims_made << [id, coords]
 end
 
 puts grid.select { |_, count| count > 1 }.size
+
+# --- part two
+
+good = claims_made.select do |id, coords|
+  coords.map { |c| grid[c] }.all? { |x| x == 1 }
+end
+
+puts good.map(&:first)
