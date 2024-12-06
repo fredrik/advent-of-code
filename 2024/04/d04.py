@@ -31,20 +31,6 @@ def diagonals(grid):
         yield np.diagonal(grid, offset=n)
 
 
-def part1loops(input):
-    xmas = np.array(["X", "M", "A", "S"])
-    lines = input.strip().splitlines()
-    original_grid = np.array([[c for c in line] for line in lines])
-
-    count = 0
-    for grid in rotations(original_grid):
-        for row in chain(grid, diagonals(grid)):
-            for i in range(row.size):
-                if np.array_equal(row.take(range(i, i + len(xmas)), mode="clip"), xmas):
-                    count += 1
-    print(f"count: {count}")
-
-
 def part2(input):
     lines = input.strip().splitlines()
     w = len(lines)
