@@ -13,7 +13,6 @@ def part1(input):
                 grid[y][x] = "o"
             if freq != ".":
                 towers[freq].append((x, y))
-    max_x, max_y = len(grid[0]), len(grid)
 
     pairs = find_pairs(towers)
     for t1, t2 in pairs:
@@ -35,7 +34,6 @@ def part2(input):
             grid[y][x] = freq
             if freq != ".":
                 towers[freq].append((x, y))
-    max_x, max_y = len(grid[0]), len(grid)
 
     pairs = find_pairs(towers)
     for t1, t2 in pairs:
@@ -44,9 +42,7 @@ def part2(input):
             dx, dy = (t1[0] - t2[0], t1[1] - t2[1])
             set_xy(grid, t1[0] + dx * n, t1[1] + dy * n, "#")
             set_xy(grid, t2[0] - dx * n, t2[1] - dy * n, "#")
-            if oob(grid, t1[0] + dx * n, t1[1] + dy * n) and oob(
-                grid, t2[0] - dx * n, t2[1] - dy * n
-            ):
+            if oob(grid, t1[0] + dx * n, t1[1] + dy * n) and oob(grid, t2[0] - dx * n, t2[1] - dy * n):
                 break
             n += 1
 
