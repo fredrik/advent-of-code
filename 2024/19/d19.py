@@ -4,12 +4,40 @@ from collections import defaultdict
 def solve(input, part2):
     raw_patterns, raw_designs = input.split("\n\n")
     raw_patterns = [p.strip() for p in raw_patterns.strip().split(",")]
-    patterns = defaultdict(set)
-    for p in raw_patterns:
-        patterns[len(p)].add(p)
     designs = [d.strip() for d in raw_designs.strip().split("\n")]
 
-    return sum(1 for d in designs if design_possible(d, patterns))
+    if not part2:
+        patterns = defaultdict(set)
+        for p in raw_patterns:
+            patterns[len(p)].add(p)
+
+        return sum(1 for d in designs if design_possible(d, patterns))
+    else:
+        patterns = set(raw_patterns)
+
+        seen = 0
+        count = 0
+        for d in designs:
+            count += all_possible_arrangements(d, patterns)
+            seen += 1
+        return count
+
+
+def all_possible_arrangements(design, patterns, cache={}):
+    if design == "":
+        return 1
+
+    if design in cache:
+        return cache[design]
+
+    arrangements = 0
+    for p in patterns:
+        n = len(p)
+        if design[:n] == p:
+            arrangements += all_possible_arrangements(design[n:], patterns, cache)
+
+    cache[design] = arrangements
+    return arrangements
 
 
 def design_possible(design, patterns, ass=[]):
@@ -49,4 +77,4 @@ def choose_input():
 if __name__ == "__main__":
     input = choose_input()
     print("part 1", solve(input, False))
-    # print("part 2", solve(input, True))
+    print("part 2", solve(input, True))
