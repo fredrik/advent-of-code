@@ -5,32 +5,30 @@ import networkx
 
 def solve(input, part):
     nodes, edges, start, end = parse_input(input)
-    g = networkx.Graph(edges)
 
-    print(g)
-    # print("nodes", g.nodes)
-    # print("edges", g.edges)
-    # print("start", start)
-    # print("end", end)
+    graph = networkx.Graph(edges)
+    paths = dict(networkx.shortest_path_length(graph, target=end))
 
     if part == 1:
-        count = 0
-        paths = dict(networkx.shortest_path_length(g, target=end))
-        for node in g.nodes:
-            x, y = node
-            for nx, ny in reachable(nodes, x, y):
-                cost = abs(x - nx) + abs(y - ny)
-                diff = paths[(x, y)] - paths[(nx, ny)] - cost
-                if diff >= 100:
-                    count += 1
+        max_jump_length = 2
+    else:
+        max_jump_length = 20
 
-        return count
+    count = 0
+    for x, y in graph.nodes:
+        for nx, ny in jumps(nodes, x, y, max_jump_length):
+            jump_length = abs(x - nx) + abs(y - ny)
+            diff = paths[(x, y)] - paths[(nx, ny)] - jump_length
+            if diff >= 100:
+                count += 1
+    return count
 
 
-def reachable(nodes, x, y):
-    skips = [
-        p for p in itertools.product([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2]) if abs(p[0]) + abs(p[1]) <= 2 and p != (0, 0)
-    ]
+def jumps(nodes, x, y, jump):
+    i = range(-jump, jump + 1)
+    j = range(-jump, jump + 1)
+    prod = itertools.product(i, j)
+    skips = [(x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)]
     for dx, dy in skips:
         nx, ny = x + dx, y + dy
         if (nx, ny) in nodes and nodes[(nx, ny)] != "#":
@@ -88,4 +86,4 @@ def choose_input():
 if __name__ == "__main__":
     input = choose_input()
     print("part 1:", solve(input, 1))
-    # print("part 2:", solve(input, 2))
+    print("part 2:", solve(input, 2))
