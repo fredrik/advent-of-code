@@ -28,8 +28,7 @@ def jumps(nodes, x, y, jump):
     i = range(-jump, jump + 1)
     j = range(-jump, jump + 1)
     prod = itertools.product(i, j)
-    skips = [(x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)]
-    for dx, dy in skips:
+    for dx, dy in [(x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)]:
         nx, ny = x + dx, y + dy
         if (nx, ny) in nodes and nodes[(nx, ny)] != "#":
             yield nx, ny
