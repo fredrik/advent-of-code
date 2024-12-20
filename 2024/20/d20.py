@@ -3,7 +3,7 @@ import itertools
 import networkx
 
 
-def solve(input, part):
+def solve(input, part, diff_cutoff):
     nodes, edges, start, end = parse_input(input)
 
     graph = networkx.Graph(edges)
@@ -19,7 +19,7 @@ def solve(input, part):
         for nx, ny in jumps(nodes, x, y, max_jump_length):
             jump_length = abs(x - nx) + abs(y - ny)
             diff = paths[(x, y)] - paths[(nx, ny)] - jump_length
-            if diff >= 100:
+            if diff >= diff_cutoff:
                 count += 1
     return count
 
@@ -76,14 +76,16 @@ import os
 def choose_input():
     if os.environ.get("LARGE_INPUT"):
         filename = "input.txt"
+        diff_cutoff = 100
     else:
         filename = "input.small"
+        diff_cutoff = 50
 
     with open(filename, "r") as f:
-        return f.read()
+        return f.read(), diff_cutoff
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    input, diff_cutoff = choose_input()
+    print("part 1:", solve(input, 1, diff_cutoff))
+    print("part 2:", solve(input, 2, diff_cutoff))
