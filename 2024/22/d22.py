@@ -86,7 +86,7 @@ def choose_input():
     if os.environ.get("LARGE_INPUT"):
         filename = "input.txt"
     else:
-        filename = "input.alt"
+        filename = "input.small"
 
     with open(filename, "r") as f:
         return f.read()
