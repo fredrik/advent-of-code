@@ -4,26 +4,13 @@ import os
 
 
 def has_large_region(grid, threshold):
-    """
-    Check if the grid contains any region larger than the specified threshold.
-    Returns True if such a region exists, False otherwise.
-
-    Args:
-        grid (List[List[int]]): 2D grid where 1 represents filled cells and 0 represents empty cells
-        threshold (int): Minimum size of region to search for
-
-    Returns:
-        bool: True if a region larger than threshold exists, False otherwise
-    """
     if not grid or not grid[0]:
-        print("empty grid")
         return False
 
     rows, cols = len(grid), len(grid[0])
     visited = set()
 
     def measure_region(row, col):
-        """Helper function to measure region size starting from a point."""
         if row < 0 or row >= rows or col < 0 or col >= cols or grid[row][col] != 1 or (row, col) in visited:
             return 0
 
@@ -55,7 +42,6 @@ def has_large_region(grid, threshold):
                     # return True
 
     return max_seen
-    # return False
 
 
 # ---
@@ -159,6 +145,9 @@ def choose_input():
 
 
 if __name__ == "__main__":
-    iii = choose_input()
-    print("part 1", solve(iii, False))
+    # iii = choose_input()
+    # print("part 1", solve(iii, False))
     # print("part 2", solve(input, True))
+
+    print("sorry, this task requires eyes on the output in order to find the answer.")
+    print("also, I seem to have not saved the implementation for part 1 of this task.")
