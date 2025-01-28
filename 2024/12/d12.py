@@ -10,6 +10,7 @@ def solve(input, part):
 
 def part1(input):
     grid = parse_grid(input)
+
     regions = []
     all_points = set()
 
@@ -17,22 +18,7 @@ def part1(input):
         if point in all_points:
             continue
 
-        region = set()
-
-        # dfs
-        queue = [point]
-        while queue:
-            p = queue.pop()
-            if p in region:
-                continue
-
-            region.add(p)
-
-            for n in neighbours(p):
-                if grid.get(n) == grid[p]:
-                    queue.append(n)
-        # /dfs
-
+        region = find_region(grid, point)
         all_points |= region
         regions.append(region)
 
@@ -59,6 +45,22 @@ def parse_grid(input):
         for col, c in enumerate([c for c in line.strip()]):
             grid[(row, col)] = c
     return grid
+
+
+def find_region(grid, point):
+    region = set()
+
+    queue = [point]
+    while queue:
+        p = queue.pop()
+        if p in region:
+            continue
+
+        region.add(p)
+
+        for n in neighbours(p):
+            if grid.get(n) == grid[p]:
+                queue.append(n)
 
 
 def neighbours(point):
