@@ -26,8 +26,7 @@ def part1(input):
     for region in regions:
         perimeter = 0
         for p in region:
-            matching_neighs = [n for n in neighbours(p) if grid.get(n) == grid[p]]
-            perimeter += 4 - len(matching_neighs)
+            perimeter += 4 - len(list(matching_neighbours(grid, p)))
         price += perimeter * len(region)
     return price
 
@@ -58,22 +57,25 @@ def find_region(grid, point):
 
         region.add(p)
 
-        for n in neighbours(p):
-            if grid.get(n) == grid[p]:
-                queue.append(n)
+        for n in matching_neighbours(grid, p):
+            queue.append(n)
+
+    return region
 
 
-def neighbours(point):
-    # all neighbouring points.
-    # can be outside grid, so must be checked by caller.
+def matching_neighbours(grid, point):
+    # matching neighbours. must be inside the grid by definition.
     directions = [
         (0, -1),  # up
         (0, 1),  # down
         (-1, 0),  # left
         (1, 0),  # right
     ]
-    for dx, dy in directions:
-        yield point[0] + dx, point[1] + dy
+    r, c = point
+    for dr, dc in directions:
+        n = (r + dr, c + dc)
+        if grid.get(n) == grid[point]:
+            yield n
 
 
 # ---
