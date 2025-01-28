@@ -1,16 +1,65 @@
 import os
+from itertools import product
 
 
 def solve(input, part):
-    if part == 1:
-        return part1(input)
-    else:
-        return part2(input)
-
-
-def part1(input):
     grid = parse_grid(input)
+    regions = find_all_regions(grid)
 
+    if part == 1:
+        return part1(grid, regions)
+    else:
+        return part2(regions)
+
+
+def part1(grid, regions):
+    perimeter_price = 0
+    for region in regions:
+        perimeter = 0
+        for p in region:
+            perimeter += 4 - len(list(matching_neighbours(grid, p)))
+        perimeter_price += perimeter * len(region)
+    return perimeter_price
+
+
+def part2(regions):
+    side_price = 0
+    for region in regions:
+        num_corners = 0
+        for point in region:
+            row, col = point
+
+            for dr, dc in product([1, -1], repeat=2):
+                row_neighbor = (row + dr, col)
+                col_neighbor = (row, col + dc)
+                diagonal_neighbor = (row + dr, col + dc)
+
+                # exterior corners
+                if row_neighbor not in region and col_neighbor not in region:
+                    num_corners += 1
+
+                # interior corners
+                if row_neighbor in region and col_neighbor in region and diagonal_neighbor not in region:
+                    num_corners += 1
+
+        side_price += num_corners * len(region)
+
+    return side_price
+
+
+# ---
+
+
+def parse_grid(input):
+    grid = {}
+    for row, line in enumerate(input.strip().split("\n")):
+        for col, c in enumerate([c for c in line.strip()]):
+            grid[(row, col)] = c
+
+    return grid
+
+
+def find_all_regions(grid):
     regions = []
     all_points = set()
 
@@ -22,28 +71,7 @@ def part1(input):
         all_points |= region
         regions.append(region)
 
-    price = 0
-    for region in regions:
-        perimeter = 0
-        for p in region:
-            perimeter += 4 - len(list(matching_neighbours(grid, p)))
-        price += perimeter * len(region)
-    return price
-
-
-def part2(input):
-    pass
-
-
-# ---
-
-
-def parse_grid(input):
-    grid = {}
-    for row, line in enumerate(input.strip().split("\n")):
-        for col, c in enumerate([c for c in line.strip()]):
-            grid[(row, col)] = c
-    return grid
+    return regions
 
 
 def find_region(grid, point):
