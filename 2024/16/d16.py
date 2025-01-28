@@ -9,22 +9,24 @@ SOUTH = (1, 0)
 
 
 def solve(input, part):
-    if part == 1:
-        return part1(input)
-    else:
-        return part2(input)
-
-
-def part1(input):
     grid, start, end = parse_grid(input)
     graph = make_graph(grid)
 
+    if part == 1:
+        return part1(graph, start, end)
+    else:
+        return part2(graph, start, end, grid)
+
+
+def part1(graph, start, end):
     path = nx.shortest_path(graph, (start, EAST), end, weight="weight")
     return nx.path_weight(graph, path, "weight")
 
 
-def part2(input):
-    pass
+def part2(graph, start, end, grid):
+    paths = nx.all_shortest_paths(graph, (start, EAST), end, weight="weight")
+    seats = set(node for path in paths for node, _ in path[:-1])
+    return len(seats)
 
 
 # ---
@@ -98,7 +100,7 @@ def choose_input():
     if os.environ.get("LARGE_INPUT"):
         filename = "input.txt"
     else:
-        filename = "input.alt"
+        filename = "input.small"
 
     with open(filename, "r") as f:
         return f.read()
