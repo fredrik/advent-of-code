@@ -1,5 +1,5 @@
+import os
 import networkx
-import itertools
 
 
 def solve(input, part):
@@ -10,28 +10,71 @@ def solve(input, part):
     for sequence in sequences:
         print("".join(sequence))
 
-        numeric_code = int("".join(sequence).replace("A", ""))
         shortest_len = find_shortest_input_sequence(npad, dpad, sequence)
-
-        print(shortest_len, numeric_code, "->", shortest_len * numeric_code)
+        numeric_code = int("".join(sequence).replace("A", ""))
         sum += shortest_len * numeric_code
 
+        print(shortest_len, numeric_code, "->", shortest_len * numeric_code)
         print()
 
     return sum
 
 
 def find_shortest_input_sequence(npad, dpad, sequence):
-    p1 = find_presses(npad, sequence)
-    print("".join(p1))
+    shortest = 99999
+    for p1 in all_sequences(npad, sequence):
+        print("p1", p1)
+        for p2 in all_sequences(dpad, p1):
+            print("p2", p2)
+            for p3 in all_sequences(dpad, p2):
+                print("p3", p3)
+                if len(p3) < shortest:
+                    shortest = len(p3)
+                    print("new shortest", len(p3))
+    return shortest
 
-    p2 = find_presses(dpad, sort_sequence(p1))
-    print("".join(sort_sequence(p2)))
 
-    p3 = find_presses(dpad, sort_sequence(p2))
-    print("".join(sort_sequence(p3)))
+def all_sequences(graph, sequence):
+    # @cache
+    def all_shortest_paths(a, b):
+        return list(networkx.all_shortest_paths(graph, a, b))
 
-    return len(p3)
+    def direction(path):
+        pg = networkx.path_graph(path)
+        for u, v in pg.edges():
+            e = graph.get_edge_data(u, v)
+            yield e["direction"]
+
+    def find_all_sequences(seq, directions):
+        if len(seq) == 1:
+            yield directions
+        else:
+            for p in all_shortest_paths(seq[0], seq[1]):
+                yield from find_all_sequences(seq[1:], directions[:-1] + list(direction(p)) + ["A"])
+
+    return list(find_all_sequences(sequence, []))
+
+    # return list(itertools.chain.from_iterable(find_all_sequences(sequence, [])))
+    # all = list(find_all_sequences(sequence, []))
+    # return all
+    # return [x for l in all for x in l]
+    # return [p for part in list(find_all_sequences(sequence, [])) for p in part]
+
+
+# def find_presses(g, sequence):
+#     def presses():
+#         # first, start at A and move to first input
+#         # print("".join(directions("A", sequence[0])), end="")
+#         yield directions(g, "A", sequence[0])
+#         yield "A"
+#         # move to each input
+#         for k1, k2 in pairs(sequence):
+#             # print("#", k1, k2)
+#             # print("".join(directions(k1, k2)), end="")
+#             yield directions(g, k1, k2)
+#             yield "A"
+
+#     return list(itertools.chain.from_iterable(presses()))
 
 
 def pairs(s):
@@ -47,22 +90,6 @@ def directions(g, k1, k2):
     for u, v in pg.edges():
         e = g.get_edge_data(u, v)
         yield e["direction"]
-
-
-def find_presses(g, sequence):
-    def presses():
-        # first, start at A and move to first input
-        # print("".join(directions("A", sequence[0])), end="")
-        yield directions(g, "A", sequence[0])
-        yield "A"
-        # move to each input
-        for k1, k2 in pairs(sequence):
-            # print("#", k1, k2)
-            # print("".join(directions(k1, k2)), end="")
-            yield directions(g, k1, k2)
-            yield "A"
-
-    return list(itertools.chain.from_iterable(presses()))
 
 
 def sort_sequence(s):
@@ -137,9 +164,6 @@ def make_pads():
 
 
 # ---
-
-
-import os
 
 
 def choose_input():
