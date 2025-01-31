@@ -1,24 +1,49 @@
 import os
 import networkx
 from functools import cache
+from itertools import product, pairwise
 
 
 def solve(input, part):
     sequences = [[x for x in line] for line in input.splitlines()]
     npad, dpad = make_pads()
 
-    sum = 0
+    seq = set(numpad_seq(npad, "A029A"))
+    print("seq:", seq)
+    assert seq == {"<A^A>^^AvvvA", "<A^A^>^AvvvA", "<A^A^^>AvvvA"}
+
+    total = 0
     for sequence in sequences:
         print("".join(sequence))
+        print(sequence)
 
-        shortest_len = find_shortest_input_sequence(npad, dpad, sequence)
+        # shortest_len = find_shortest_input_sequence(npad, dpad, sequence)
+        shortest_len = min(sum(count_presses(2, npad, src, dst) for src, dst in pairwise(["A"] + sequence)))
         numeric_code = int("".join(sequence).replace("A", ""))
-        sum += shortest_len * numeric_code
+        total += shortest_len * numeric_code
 
         print(shortest_len, numeric_code, "->", shortest_len * numeric_code)
         print()
 
-    return sum
+    return total
+
+
+def count_presses(num_chained, graph, src, dst):
+    print(f'count_presses({num_chained}, "{src}", "{dst}")')
+    if num_chained == 1:
+        return len(next(iter(find_paths(graph, src, dst))))
+    else:
+        s = []
+        for sequence in find_paths(graph, src, dst):
+            print(f"sequence: {sequence} ({sequence.__class__})")
+            print(list(sequence))
+            s.append(sum(count_presses(num_chained - 1, graph, src, mid) for mid in pairwise(["A"] + list(sequence))))
+        return min(s)
+
+        return min(
+            # sum(count_presses(num_chained - 1, graph, src, mid) for mid in pairwise(["A"] + sequence))
+            # for sequence in find_paths(graph, src, dst)
+        )
 
 
 def find_shortest_input_sequence(npad, dpad, sequence):
@@ -52,6 +77,29 @@ def all_sequences(graph, sequence):
                 yield from find_all_sequences(seq[1:], ps)
 
     return list(find_all_sequences(["A"] + sequence, []))
+
+
+# ---
+
+
+def find_paths(graph, src, dst):
+    paths = set()
+    print(f"networkx.all_shortest_paths: '{src}' -> '{dst}'")
+    for p in networkx.all_shortest_paths(graph, src, dst):
+        pg = networkx.path_graph(p)
+        path = []
+        for u, v in pg.edges():
+            e = graph.get_edge_data(u, v)
+            path.append(e["direction"])
+        path.append("A")
+        paths.add("".join(path))
+    return paths
+
+
+def numpad_seq(graph, seq):
+    paths = ["".join(subpath) for subpath in product(*[find_paths(graph, src, dst) for src, dst in pairwise(seq)])]
+    min_len = min(len(path) for path in paths)
+    return [path for path in paths if len(path) == min_len]
 
 
 # ---
@@ -137,4 +185,4 @@ def choose_input():
 if __name__ == "__main__":
     input = choose_input()
     print("part 1:", solve(input, 1))
-    # print("part 2:", solve(input, 2))
+    print("part 2:", solve(input, 2))
