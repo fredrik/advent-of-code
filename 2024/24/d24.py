@@ -1,3 +1,4 @@
+import os
 import itertools
 
 
@@ -18,54 +19,58 @@ def part1(wires, gates):
 
 
 def part2(wires, gates):
-    find_z(wires, gates)
+    # find_z(wires, gates)
+    #
+    # def dig(name, depth=0):
+    #     if depth > 2:
+    #         return
+    #     if depth == 0:
+    #         print("dig", name)
+    #     if name in wires:
+    #         print(" " * depth, name, "wire", wires[name])
+    #     else:
+    #         g = gates[name]
+    #         print(" " * depth, name, "=", g["op"], g["a"], g["b"])
+    #         dig(g["a"], depth + 1)
+    #         dig(g["b"], depth + 1)
+    #     if depth == 0:
+    #         print("++++++++++++")
 
-    def dig(name, depth=0):
-        if depth > 2:
-            return
-        if depth == 0:
-            print("dig", name)
-        if name in wires:
-            print(" " * depth, name, "wire", wires[name])
-        else:
-            g = gates[name]
-            print(" " * depth, name, "=", g["op"], g["a"], g["b"])
-            dig(g["a"], depth + 1)
-            dig(g["b"], depth + 1)
-        if depth == 0:
-            print("++++++++++++")
+    # dig("z03")
+    # dig("z04")
+    # dig("z05")
+    # dig("z06")
+    # dig("z07")
+    # dig("z08")
 
-    dig("z03")
-    dig("z04")
-    dig("z05")
-    dig("z06")
-    dig("z07")
-    dig("z08")
+    # return
 
-    return
+    # ---
 
     # "there are exactly four pairs of gates whose output wires have been swapped"
+
     xval = 0
     xs = set([k for k in wires.keys() if k.startswith("x")])
     for n, xk in enumerate(sorted(xs)):
         v = wires[xk]
         xval += v << n
+
     yval = 0
     ys = set([k for k in wires.keys() if k.startswith("y")])
     for n, yk in enumerate(sorted(ys)):
         v = wires[yk]
         yval += v << n
 
-    actual_output = xval + yval
-    print(xval, "+", yval, "=", actual_output)
+    correct_sum = xval + yval
+    diff = correct_sum ^ find_z(wires, gates)
+    print(xval, "+", yval, "=", correct_sum)
     print("erroneous output:", find_z(wires, gates))
-    print(bin(actual_output))
-    print(bin(find_z(wires, gates)))
-    diff = actual_output ^ find_z(wires, gates)
-    print(bin(diff))
+    print("corr", format(correct_sum, "#048b"))
+    print("err ", format(find_z(wires, gates), "#048b"))
+    print("diff", format(diff, "#048b"))
 
-    return
 
+def part2_brute(wires, gates):
     # ---
 
     # for all permutations of 4 pairs of gates..
@@ -100,7 +105,7 @@ def part2(wires, gates):
         # eval
         z = find_z(wires, gs)
 
-        if z == actual_output:
+        if z == correct_sum:
             return ",".join(perm)
 
         count += 1
@@ -155,14 +160,12 @@ def evaluate(g, wires, gates):
 # ---
 
 
-import os
-
-
 def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
+    if os.environ.get("INPUT"):
+        filename = os.environ.get("INPUT")  # todo: make sure path is relative and in the same directory etc
     else:
-        filename = "input.alt"
+        # default
+        filename = "input.txt"
 
     with open(filename, "r") as f:
         return f.read()
