@@ -1,3 +1,3 @@
 # Advent of Code
 
-Here are my solutions to Advent of Code. Enjoy!
+Here are my Python solutions to Advent of Code 2024. Enjoy!
