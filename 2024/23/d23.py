@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 
 import networkx as nx
@@ -11,21 +12,16 @@ def solve(input, part):
 
 
 def part1(input):
-    conns = parse_input(input)
-    tkeys = set(k for k in conns.keys() if k.startswith("t"))
-
-    threes = set()
-    for k in tkeys:
-        for c in conns[k]:
-            shared = conns[k] & conns[c]
-            for s in shared:
-                t = tuple(sorted((k, c, s)))
-                threes.add(t)
-
-    # for t in sorted(list(threes)):
-    #     print(t)
-
-    return len(threes)
+    graph = make_graph(edges(input))
+    return len(
+        set(
+            tuple(sorted((k, c, s)))
+            for k in graph.keys()
+            if k.startswith("t")
+            for c in graph[k]
+            for s in graph[k] & graph[c]
+        )
+    )
 
 
 def part2(input):
@@ -37,39 +33,36 @@ def part2(input):
 # ---
 
 
+def make_graph(edges):
+    graph = defaultdict(set)
+    for a, b in edges:
+        graph[a].add(b)
+        graph[b].add(a)
+    return graph
+
+
 def edges(input):
     for line in input.splitlines():
         a, b = line.split("-")
         yield a, b
 
 
-def parse_input(input):
-    conns = defaultdict(set)
-    for line in input.splitlines():
-        a, b = line.split("-")
-        conns[a].add(b)
-        conns[b].add(a)
-
-    return conns
-
-
 # ---
 
 
-import os
-
-
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
+def get_input_data():
+    if os.environ.get("INPUT"):
+        filename = os.environ.get("INPUT")
+        # todo: make sure path is relative and in the same directory etc
     else:
-        filename = "input.small"
+        # default
+        filename = "input.txt"
 
     with open(filename, "r") as f:
         return f.read()
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input_data()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))
