@@ -1,18 +1,18 @@
 import os
+
 from collections import defaultdict
 
-import networkx as nx
 
+def solve(data, part):
+    graph = make_graph(edges(data))
 
-def solve(input, part):
     if part == 1:
-        return part1(input)
+        return part1(graph)
     else:
-        return part2(input)
+        return part2(graph)
 
 
-def part1(input):
-    graph = make_graph(edges(input))
+def part1(graph):
     return len(
         set(
             tuple(sorted((k, c, s)))
@@ -24,13 +24,18 @@ def part1(input):
     )
 
 
-def part2(input):
-    graph = nx.Graph(edges(input))
-    largest_clique = max(nx.find_cliques(graph), key=len)
+def part2(graph):
+    largest_clique = max(find_cliques(graph), key=len)
     return ",".join(sorted(largest_clique))
 
 
 # ---
+
+
+def edges(data):
+    for line in data.splitlines():
+        a, b = line.split("-")
+        yield a, b
 
 
 def make_graph(edges):
@@ -41,10 +46,21 @@ def make_graph(edges):
     return graph
 
 
-def edges(input):
-    for line in input.splitlines():
-        a, b = line.split("-")
-        yield a, b
+def find_cliques(graph):
+    clique = []
+    bron_kerbosch(r=set(), p=set(graph.keys()), x=set(), graph=graph, clique=clique)
+    return clique
+
+
+def bron_kerbosch(r, p, x, graph, clique):
+    if len(p) == 0 and len(x) == 0:
+        clique.append(r)
+        return
+    for v in set(p):
+        n = graph[v]
+        bron_kerbosch(r.union(set([v])), p.intersection(n), x.intersection(n), graph, clique)
+        p.remove(v)
+        x.add(v)
 
 
 # ---
@@ -53,7 +69,7 @@ def edges(input):
 def get_input_data():
     if os.environ.get("INPUT"):
         filename = os.environ.get("INPUT")
-        # todo: make sure path is relative and in the same directory etc
+        # todo: make sure path is relative and in the same directory and exists and so on etc
     else:
         # default
         filename = "input.txt"
