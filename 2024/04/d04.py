@@ -2,87 +2,59 @@ import os
 from collections import defaultdict
 from itertools import chain
 
-import numpy as np
+
+def solve(data, part):
+    grid = parse_input(data)
+
+    if part == 1:
+        return part1(grid)
+    else:
+        return part2(grid)
 
 
-def part1(input):
-    xmas = np.array(["X", "M", "A", "S"])
-    original_grid = np.array([[c for c in line] for line in input.strip().splitlines()])
+def part1(grid):
+    target = list("XMAS")
 
-    all_lines = (line for grid in rotations(original_grid) for line in chain(grid, diagonals(grid)))
-    print(
-        sum(
-            (
-                np.array_equal(line.take(range(i, i + len(xmas)), mode="clip"), xmas)
-                for line in all_lines
-                for i in range(line.size)
-            )
-        )
+    return sum(
+        [grid[(i + di * n, j + dj * n)] for n in range(4)] == target
+        for dj in [-1, 0, 1]
+        for di in [-1, 0, 1]
+        for i, j in list(grid)
     )
 
 
-def rotations(original_grid):
-    for n in range(4):
-        yield np.rot90(original_grid, k=n)
+def part2(grid):
+    targets = (list("MAS"), list("SAM"))
+
+    return sum(
+        [grid[(i + d, j + d)] for d in [-1, 0, 1]] in targets
+        and [grid[(i + d, j - d)] for d in [-1, 0, 1]] in targets
+        for i, j in list(grid)
+    )
 
 
-def diagonals(grid):
-    for n in range(-len(grid), len(grid)):
-        yield np.diagonal(grid, offset=n)
+# ---
 
 
-def part2(input):
-    lines = input.strip().splitlines()
-    w = len(lines)
+def parse_input(data):
     g = defaultdict(str)
-    for i, line in enumerate(lines):
+    for i, line in enumerate(data.strip().splitlines()):
         for j, c in enumerate(line):
             g[(i, j)] = c
-
-    def has_mas(g, i, j):
-        a = g[(i - 1, j - 1)]
-        b = g[(i + 1, j + 1)]
-        c = g[(i - 1, j + 1)]
-        d = g[(i + 1, j - 1)]
-
-        if ((a == "M" and b == "S") or (a == "S" and b == "M")) and (
-            (c == "M" and d == "S") or (c == "S" and d == "M")
-        ):
-            return 1
-        else:
-            return 0
-
-    count = 0
-    for i in range(w):
-        for j in range(w):
-            if g[(i, j)] == "A":
-                count += has_mas(g, i, j)
-    print(count)
+    return g
 
 
-input = """
-MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX
-"""
-
-
-def choose_input():
-    if os.environ.get("FILEMODE"):
-        with open("input.txt", "r") as f:
-            return f.read()
+def get_input_data():
+    if os.environ.get("INPUT"):
+        filename = os.environ.get("INPUT")
     else:
-        return input
+        filename = "input.txt"
+
+    with open(filename, "r") as f:
+        return f.read()
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    part1(input)
-    part2(input)
+    data = get_input_data()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))
