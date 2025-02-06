@@ -1,13 +1,11 @@
 import itertools
-
-import networkx
+from collections import deque, defaultdict
 
 
 def solve(input, part, diff_cutoff):
-    nodes, edges, start, end = parse_input(input)
+    graph, start, end = parse_input(input)
 
-    graph = networkx.Graph(edges)
-    paths = dict(networkx.shortest_path_length(graph, target=end))
+    distances = find_distances(graph, end)
 
     if part == 1:
         max_jump_length = 2
@@ -15,22 +13,42 @@ def solve(input, part, diff_cutoff):
         max_jump_length = 20
 
     count = 0
-    for x, y in graph.nodes:
-        for nx, ny in jumps(nodes, x, y, max_jump_length):
+    for x, y in graph:
+        for nx, ny in jumps(graph, x, y, max_jump_length):
             jump_length = abs(x - nx) + abs(y - ny)
-            diff = paths[(x, y)] - paths[(nx, ny)] - jump_length
+            diff = distances[(x, y)] - distances[(nx, ny)] - jump_length
             if diff >= diff_cutoff:
                 count += 1
     return count
 
 
-def jumps(nodes, x, y, jump):
+# bfs.
+def find_distances(graph, target):
+    distances = defaultdict(lambda: float("inf"))
+    distances[target] = 0
+
+    queue = deque([target])
+    visited = set([target])
+
+    while queue:
+        current = queue.popleft()
+        print("current", current)
+
+        for neighbour in graph[current]:
+            if neighbour not in visited:
+                queue.append(neighbour)
+                visited.add(neighbour)
+                distances[neighbour] = distances[current] + 1
+    return distances
+
+
+def jumps(graph, x, y, jump):
     i = range(-jump, jump + 1)
     j = range(-jump, jump + 1)
     prod = itertools.product(i, j)
     for dx, dy in [(x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)]:
         nx, ny = x + dx, y + dy
-        if (nx, ny) in nodes and nodes[(nx, ny)] != "#":
+        if (nx, ny) in graph and graph[(nx, ny)] != "#":
             yield nx, ny
 
 
@@ -40,7 +58,7 @@ def jumps(nodes, x, y, jump):
 def parse_input(input):
     lines = input.strip().split("\n")
 
-    nodes = {}
+    nodes = {}  # todo: defaultdict and skip checks.
     edges = set()
     for y, row in enumerate(lines):
         for x, cell in enumerate(row):
