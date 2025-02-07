@@ -1,21 +1,26 @@
 import os
 
 
+value = {"(": 1, ")": -1}
+
+
 def solve(data, part):
-    if part == 1:
-        return part1(data)
-    else:
-        return part2(data)
-
-
-def part1(data):
     parens = list(data.strip())
-    value = {"(": 1, ")": -1}
+
+    if part == 1:
+        return part1(parens)
+    else:
+        return part2(parens)
+
+
+def part1(parens):
     return sum(value[p] for p in parens)
 
 
-def part2(data):
-    return 0
+def part2(parens):
+    floor = 1
+    floors = [floor := floor + value[p] for p in parens]
+    return floors.index(-1)
 
 
 # ---
