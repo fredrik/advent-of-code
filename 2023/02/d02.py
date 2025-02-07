@@ -1,27 +1,36 @@
 import os
+import math
 
 
 def solve(data, part):
-    if part == 1:
-        return part1(data)
-    else:
-        return part2(data)
-
-
-def part1(data):
     parts = [line.split("x") for line in data.splitlines()]
     measurements = [list(map(int, p)) for p in parts]
 
-    def size(measurement):
-        a, b, _ = sorted(measurement)  # a*b is size of smallest side
+    if part == 1:
+        return part1(measurements)
+    else:
+        return part2(measurements)
+
+
+def part1(measurements):
+    def paper(measurement):
         L, W, H = measurement
+        a, b, _ = sorted(measurement)  # a*b is size of smallest side
         return 2 * L * W + 2 * W * H + 2 * H * L + a * b
 
-    return sum(size(m) for m in measurements)
+    return sum(paper(m) for m in measurements)
 
 
-def part2(data):
-    return 0
+def part2(measurements):
+    def wrapping(measurement):
+        a, b, _ = sorted(measurement)
+        perimeter = 2 * (a + b)
+        return perimeter
+
+    def bow(measurement):
+        return math.prod(measurement)
+
+    return sum(wrapping(m) + bow(m) for m in measurements)
 
 
 # ---
