@@ -11,34 +11,14 @@ directions = {
 def solve(data, part):
     instructions = list(data.strip())
 
-    if part == 1:
-        return part1(instructions)
-    else:
-        return part2(instructions)
-
-
-def part1(instructions):
-    pos = (0, 0)
-    seen = set([(0, 0)])
-
-    for i in instructions:
-        dx, dy = directions[i]
-        x, y = pos
-        pos = (x + dx, y + dy)
-        seen.add(pos)
-
-    return len(seen)
-
-
-def part2(instructions):
     pos = [(0, 0), (0, 0)]  # santa and robot.
     seen = set([(0, 0)])
 
     for n, i in enumerate(instructions):
         dx, dy = directions[i]
-        x, y = pos[n % 2]
-        pos[n % 2] = (x + dx, y + dy)
-        seen.add(pos[n % 2])
+        x, y = pos[n % part]
+        pos[n % part] = (x + dx, y + dy)
+        seen.add(pos[n % part])
 
     return len(seen)
 
