@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e
+
+year=$1
+day=$2
+
+if [ -z $year -o -z $day ]; then
+    echo "usage: new <year> <day>"
+    exit
+fi
+
+mkdir -v $year/$day
+cp -v templates/dxx.py $year/$day/d${day}.py
+code $year/$day/d${day}.py
