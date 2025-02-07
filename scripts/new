@@ -12,4 +12,5 @@ fi
 
 mkdir -v $year/$day
 cp -v templates/dxx.py $year/$day/d${day}.py
+touch $year/$day/input.small
 code $year/$day/d${day}.py
