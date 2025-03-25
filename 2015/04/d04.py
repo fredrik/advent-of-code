@@ -3,13 +3,14 @@ import os
 
 
 def solve(data, part):
-    for key in data.splitlines():
-        i = 0
-        while True:
-            h = hashlib.md5((key + str(i)).encode("utf-8")).hexdigest()
-            if compare(h, part):
-                return i
-            i += 1
+    key = data.strip()
+    i = 0
+    while True:
+        s = (key + str(i)).encode("utf-8")
+        h = hashlib.md5(s).hexdigest()
+        if compare(h, part):
+            return i
+        i += 1
 
 
 def compare(h, part):
