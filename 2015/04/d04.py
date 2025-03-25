@@ -6,9 +6,19 @@ def solve(data, part):
     for key in data.splitlines():
         i = 0
         while True:
-            if hashlib.md5((key + str(i)).encode("utf-8")).hexdigest()[0:5] == "00000":
+            h = hashlib.md5((key + str(i)).encode("utf-8")).hexdigest()
+            if compare(h, part):
                 return i
             i += 1
+
+
+def compare(h, part):
+    if part == 1:
+        return h[0:5] == "00000"
+    if part == 2:
+        return h[0:6] == "000000"
+
+    0 / 0  # !
 
 
 # ---
@@ -29,4 +39,4 @@ def get_input_data():
 if __name__ == "__main__":
     data = get_input_data()
     print("part 1:", solve(data, 1))
-    # print("part 2:", solve(data, 2))
+    print("part 2:", solve(data, 2))
