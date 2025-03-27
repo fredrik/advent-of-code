@@ -2,7 +2,7 @@ from collections import defaultdict
 import os
 import re
 
-pattern = re.compile("^([a-z ]+) (\d+),(\d+) through (\d+),(\d+)$")
+pattern = re.compile(r"^([a-z ]+) (\d+),(\d+) through (\d+),(\d+)$")
 
 
 def solve(data, part):
@@ -20,11 +20,20 @@ def solve(data, part):
         for p in points_between((a, b), (c, d)):
             match action:
                 case "turn on":
-                    grid[p] += 1
+                    if part == 1:
+                        grid[p] = 1
+                    else:
+                        grid[p] += 1
                 case "turn off":
-                    grid[p] = max(0, grid[p] - 1)
+                    if part == 1:
+                        grid[p] = 0
+                    else:
+                        grid[p] = max(0, grid[p] - 1)
                 case "toggle":
-                    grid[p] += 2
+                    if part == 1:
+                        grid[p] = 1 if grid[p] == 0 else 0
+                    else:
+                        grid[p] += 2
 
     # sum
     return sum(grid.values())
@@ -54,4 +63,4 @@ def get_input_data():
 if __name__ == "__main__":
     data = get_input_data()
     print("part 1:", solve(data, 1))
-    # print("part 2:", solve(data, 2))
+    print("part 2:", solve(data, 2))
