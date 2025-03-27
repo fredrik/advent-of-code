@@ -6,7 +6,7 @@ pattern = re.compile("^([a-z ]+) (\d+),(\d+) through (\d+),(\d+)$")
 
 
 def solve(data, part):
-    grid = defaultdict(bool)  # keyed by tuple (x,y)
+    grid = defaultdict(int)  # keyed by tuple (x,y)
 
     for line in data.splitlines():
         # parse
@@ -20,11 +20,11 @@ def solve(data, part):
         for p in points_between((a, b), (c, d)):
             match action:
                 case "turn on":
-                    grid[p] = True
+                    grid[p] += 1
                 case "turn off":
-                    grid[p] = False
+                    grid[p] = max(0, grid[p] - 1)
                 case "toggle":
-                    grid[p] = not grid[p]
+                    grid[p] += 2
 
     # sum
     return sum(grid.values())
