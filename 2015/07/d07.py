@@ -14,6 +14,9 @@ def solve(data, part):
     # for k in sorted(parsed.keys()):
     #     print(k, "=", evaluate(("var", k, None), parsed))
 
+    if part == 2:
+        parsed["b"] = ("lit", solve(data, 1), None)
+
     return evaluate(("var", "a", None), parsed)
 
 
@@ -110,4 +113,4 @@ def get_input_data():
 if __name__ == "__main__":
     data = get_input_data()
     print("part 1:", solve(data, 1))
-    # print("part 2:", solve(data, 2))
+    print("part 2:", solve(data, 2))
