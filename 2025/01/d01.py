@@ -1,33 +1,28 @@
 def solve(input, part):
     code = 0
     position = 50
-    parsed = parse_input(input)
+    turns = parse_input(input)
 
     if part == 1:
-        for d, n in parsed:
-            if d == "R":
-                position = (position + n) % 100
-            if d == "L":
-                position = (position - n) % 100
+        for turn in turns:
+            position = (position + turn) % 100
             if position == 0:
                 code += 1
         return code
     else:
-        for d, n in parsed:
-            if d == "R":
-                code += (position + n) // 100
-                position = (position + n) % 100
-            if d == "L":
-                code += (abs((100 - position) % 100) + n) // 100
-                position = (position - n) % 100
-
+        for turn in turns:
+            if turn > 0:
+                code += (position + turn) // 100
+            else:
+                code += (abs((100 - position) % 100) - turn) // 100
+            position = (position + turn) % 100
         return code
 
 
 def parse_input(input):
-    # return tuples of direction and number of turns
+    """Returns list of number of turns as a signed integer."""
     lines = input.strip().split("\n")
-    return [(line[0], int(line[1:])) for line in lines]
+    return [int(line[1:]) if line[0] == "R" else -int(line[1:]) for line in lines]
 
 
 # ---
