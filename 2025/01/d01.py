@@ -9,26 +9,17 @@ def solve(input, part):
                 position = (position + n) % 100
             if d == "L":
                 position = (position - n) % 100
-            print(f"dial is at {position}")
             if position == 0:
                 code += 1
         return code
     else:
         for d, n in parsed:
-            prev_code = code
             if d == "R":
                 code += (position + n) // 100
-                # if position == 0:
-                #     code = code - 1
                 position = (position + n) % 100
             if d == "L":
                 code += (abs((100 - position) % 100) + n) // 100
-                # if position == 0:
-                #     code = code - 1
                 position = (position - n) % 100
-            print(f"{d}{n}: dial is at {position}")
-            if code != prev_code:
-                print(f"  code: {code}")
 
         return code
 
