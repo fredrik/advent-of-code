@@ -1,6 +1,7 @@
 import re
 import os
 from collections import defaultdict
+from itertools import permutations
 
 # Santa can start and end at any two (different) locations he wants, but he must
 # visit each location exactly once. What is the shortest distance he can travel
@@ -9,7 +10,7 @@ from collections import defaultdict
 def solve(input, part):
     g = parse_input(input)
     distances = []
-    for path in all_paths(g):
+    for path in permutations(g.keys()):
         distance = path_distance(g, path)
         distances.append(distance)
 
@@ -29,17 +30,6 @@ def parse_input(input):
         g[parts[2]][parts[1]] = int(parts[3])
     return dict(g)
 
-def all_paths(g):
-    def _paths(g, node, path):
-        unvisited = set(g.keys()) - set(path)
-        if not unvisited:
-            yield path
-        neighbours = set(g[node].keys())
-        for neighbour in neighbours & unvisited:
-            yield from _paths(g, neighbour, path + (neighbour,) )
-    for node in g.keys():
-        yield from _paths(g, node, (node,))
-
 def path_distance(g, path):
     def pairwise(t):
         return zip(iter(t), iter(t[1:]))
@@ -47,10 +37,6 @@ def path_distance(g, path):
     for a,b in pairwise(path):
         distance += g[a][b]
     return distance
-
-
-
-
 
 # ---
 
