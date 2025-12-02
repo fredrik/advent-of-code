@@ -7,16 +7,16 @@ from collections import defaultdict
 # to achieve this?
 
 def solve(input, part):
+    g = parse_input(input)
+    distances = []
+    for path in all_paths(g):
+        distance = path_distance(g, path)
+        distances.append(distance)
+
     if part == 1:
-        g = parse_input(input)
-        distances = []
-        for path in all_paths(g):
-            distance = path_distance(g, path)
-            distances.append(distance)
-            # print(f'{path}: {distance}')
         return min(distances)
     else:
-        return 2
+        return max(distances)
 
 # data structure:
 # {'London': {'Dublin': '464', 'Belfast': '518'}, 'Dublin': {'Belfast': '141'}}
