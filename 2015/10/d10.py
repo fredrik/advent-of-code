@@ -13,17 +13,12 @@ def solve(input, part):
         return len(seq)
 
 def next_seq(seq):
-    if len(seq) == 1:
-        return [1,seq[0]]
-
     r = [] # target
 
-    x = seq.pop(0)
+    x = seq[0]
     count = 1
 
-    while seq:
-        y = seq.pop(0)
-
+    for y in seq[1:]:
         if y == x:
             count += 1
         else:
