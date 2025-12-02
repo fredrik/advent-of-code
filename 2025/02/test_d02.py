@@ -9,11 +9,18 @@ from d02 import repeats
 
 
 def test_repeats():
-    assert not repeats("123")
-    assert not repeats("110")
+    assert not repeats(1, "123")
+    assert not repeats(1, "110")
+    assert not repeats(1, "999")
 
-    assert repeats("55")
-    assert repeats("6464")
-    assert repeats("123123")
+    assert repeats(1, "55")
+    assert repeats(1, "6464")
+    assert repeats(1, "123123")
+    assert repeats(1, "38593859")
 
-    assert repeats("38593859")
+    assert not repeats(2, "123")
+    assert not repeats(2, "110")
+
+    assert repeats(2, "999")
+    assert repeats(2, "123123")
+    assert repeats(2, "2121212121")
