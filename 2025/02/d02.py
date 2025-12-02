@@ -3,18 +3,13 @@ import os
 
 
 def solve(input, part):
-    answer = 0
-    for x in parse_input(input):
-        if repeats(part, x):
-            answer += x
-    return answer
+    return sum([x for x in parse_input(input) if repeats(part, x)])
 
 
 def parse_input(input):
     for r in input.strip().split(","):
         a, b = r.split("-")
-        for x in range(int(a), int(b) + 1):
-            yield x  # todo: there's a neater way to 'yield from' somehow.
+        yield from range(int(a), int(b) + 1)
 
 
 def repeats(part: int, x: int):
