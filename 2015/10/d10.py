@@ -8,7 +8,9 @@ def solve(input, part):
             seq = next_seq(seq)
         return len(seq)
     else:
-        return None
+        for _ in range(50):
+            seq = next_seq(seq)
+        return len(seq)
 
 def next_seq(seq):
     if len(seq) == 1:
