@@ -5,18 +5,16 @@ from itertools import combinations
 def solve(input, part):
     banks = parse_input(input)
     k = 2 if part == 1 else 12
+    return sum(max_seq(bank, k) for bank in banks)
 
-    jolts = 0
-    for bank in banks:
-        r = []
-        for i, d in enumerate(bank):
-            while r and r[-1] < d and len(r) + len(bank) - i > k:
-                r.pop()
-            if len(r) < k:
-                r.append(d)
-        jolts += int("".join(r))
-    return jolts
-
+def max_seq(bank, k):
+    r = []
+    for i, d in enumerate(bank):
+        while r and r[-1] < d and len(r) + len(bank) - i > k:
+            r.pop()
+        if len(r) < k:
+            r.append(d)
+    return int("".join(r))
 
 def parse_input(input):
     for line in input:
