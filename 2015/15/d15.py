@@ -9,18 +9,23 @@ def solve(input, part):
 
     if part == 1:
         return max(recipe_score(ingredients))
-
     else:
-        return
+        return max(recipe_score(ingredients, 500))
 
 
-def recipe_score(ingredients):
+def recipe_score(ingredients, max_cals=None):
     for amounts in partitions(100, len(ingredients)):
-        tot = [0, 0, 0, 0]
+        tot = [0, 0, 0, 0, 0]
         for ingredient, amount in zip(ingredients, amounts):
             for i, ing in enumerate(ingredient):
                 tot[i] += ing * amount
-        yield math.prod([max(0, t) for t in tot])
+
+        properties, calories = tot[:4], tot[4]
+
+        if max_cals and calories != max_cals:
+            continue
+
+        yield math.prod([max(0, p) for p in properties])
 
 
 def partitions(n, parts):
@@ -47,8 +52,7 @@ def parse_input(input):
             int(match[6]),
         )
 
-        # yield {cap: cap, dur: dur, fla: fla, tex: tex, cal: cal}
-        yield (cap, dur, fla, tex)
+        yield (cap, dur, fla, tex, cal)
 
 
 # ---
