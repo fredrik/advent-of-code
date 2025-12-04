@@ -11,7 +11,11 @@ def solve(input, part):
     if part == 1:
         return max(rate_happiness(order, g) for order in permutations(people))
     else:
-        return
+        for p in people:
+            g[('Me', p)] = 0
+            g[(p, 'Me')] = 0
+        people.add('Me')
+        return max(rate_happiness(order, g) for order in permutations(people))
 
 
 def rate_happiness(order, g):
