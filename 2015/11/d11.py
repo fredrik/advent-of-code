@@ -9,17 +9,17 @@ def solve(input, part):
     initial_password = parse_input(input)
 
     if part == 1:
-        print(f"initial: {initial_password}")
-        for password in next_passwords(initial_password):
-            print(f"password: {password}")
-            if valid_password(password):
-                return password
+        return next_password(initial_password)
     else:
-        return
-
+        return next_password(next_password(initial_password))
 
 def parse_input(input):
     return input[0].strip()
+
+def next_password(password):
+    for password in next_passwords(password):
+        if valid_password(password):
+            return password
 
 
 next_letters = dict(zip(iter(ascii_lowercase), iter(ascii_lowercase[1:])))
@@ -29,16 +29,13 @@ last_password = ["z", "z", "z", "z", "z", "z", "z", "z"]
 def next_passwords(initial_password):
     def _next(p):
         for i in range(len(p) - 1, -1, -1):
-            # print(f'i:{i}')
             if p[i] != "z":
-                # print(f'p[{i}]: {p[i]} => {chr(ord(p[i]) + 1)}')
                 p[i] = chr(ord(p[i]) + 1)
                 return p
             else:
                 if i == 0:
                     return last_password
                 else:
-                    # print(f'p[{i}]: {p[i]} => "a"')
                     p[i] = "a"
 
     password = [x for x in initial_password]
