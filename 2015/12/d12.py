@@ -8,18 +8,21 @@ def solve(input, part):
     if part == 1:
         return parse_value(object)
     else:
-        return
+        return parse_value(object, ignore_red=True)
 
 def parse_input(input):
     return json.loads(input)
 
-def parse_value(v):
+def parse_value(v, ignore_red=False):
     if isinstance(v, (int, float)):
         return v
     if isinstance(v, list):
-        return sum((parse_value(w) for w in v))
+        return sum((parse_value(w, ignore_red) for w in v))
     if isinstance(v, dict):
-        return sum((parse_value(w) for w in v.values()))
+        if ignore_red and "red" in v.values():
+            return 0
+        else:
+            return sum((parse_value(w, ignore_red) for w in v.values()))
     return 0 # str or otherwise
 # ---
 
