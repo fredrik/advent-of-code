@@ -1,5 +1,6 @@
-import os
 from collections import defaultdict
+
+from aoc import get_input
 
 
 def solve(input, part):
@@ -44,28 +45,15 @@ def remove(g):
     return new_grid, ok
 
 
-# ---
-
-
-def parse_input(data):
+def parse_input(input):
     g = defaultdict(str)
-    for i, line in enumerate(data.strip().splitlines()):
+    for i, line in enumerate(input):
         for j, c in enumerate(line):
             g[(i, j)] = c
     return g
 
 
-def get_input_data():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-
-    with open(filename, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    data = get_input_data()
+    data = get_input()
     print("part 1:", solve(data, 1))
     print("part 2:", solve(data, 2))

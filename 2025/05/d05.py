@@ -1,5 +1,6 @@
-import os
 from itertools import combinations
+
+from aoc import get_input
 
 
 def solve(input, part):
@@ -62,9 +63,6 @@ def inside(x, y):
     return a >= c and b <= d
 
 
-# ---
-
-
 def parse_input(data):
     fresh, items = set(), set()
     for line in data:
@@ -79,17 +77,7 @@ def parse_input(data):
     return fresh, items
 
 
-def get_input_data():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-
-    with open(filename, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    data = get_input_data()
+    data = get_input()
     print("part 1:", solve(data, 1))
     print("part 2:", solve(data, 2))

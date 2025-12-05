@@ -1,3 +1,6 @@
+from aoc import get_input
+
+
 def solve(input, part):
     code = 0
     position = 50
@@ -21,27 +24,10 @@ def solve(input, part):
 
 def parse_input(input):
     """Returns list of number of turns as a signed integer."""
-    lines = input.strip().split("\n")
-    return [int(line[1:]) if line[0] == "R" else -int(line[1:]) for line in lines]
-
-
-# ---
-
-
-import os
-
-
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
-    else:
-        filename = "input.small"
-
-    with open(filename, "r") as f:
-        return f.read()
+    return [int(line[1:]) if line[0] == "R" else -int(line[1:]) for line in input]
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))
