@@ -6,10 +6,13 @@ from functools import cache
 def solve(input, part):
     containers = parse_input(input)
 
+    combos = fitting_combinations(containers, 150)
+
     if part == 1:
-        return len(list(fitting_combinations(containers, 150)))
+        return len(combos)
     else:
-        return
+        shortest = min(len(c) for c in combos)
+        return len([c for c in combos if len(c) == shortest])
 
 
 @cache
