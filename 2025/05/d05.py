@@ -1,5 +1,5 @@
 import os
-from collections import defaultdict
+from itertools import combinations
 
 
 def solve(input, part):
@@ -8,15 +8,62 @@ def solve(input, part):
     if part == 1:
         return sum(is_fresh(i, fresh) for i in items)
     else:
-        return
+        while True:
+            new_fresh = flatten_fresh(fresh)
+            if new_fresh == fresh:
+                break
+            fresh = new_fresh
+        return sum(b - a for a, b in fresh)
 
 
 def is_fresh(i, fresh):
-    for a,b in fresh:
+    for a, b in fresh:
         if i >= a and i <= b:
-            print(f'{i} is fresh')
             return True
     return False
+
+
+def flatten_fresh(fresh):
+    create, delete = set(), set()
+    for x, y in combinations(fresh, 2):
+        if inside(x, y):
+            delete.add(x)
+            continue
+        if inside(y, x):
+            delete.add(y)
+            continue
+        if overlap(x, y):
+            delete.add(x)
+            delete.add(y)
+            create.add(make_overlap(x, y))
+
+        # default: keep
+        create.add(x)
+        create.add(y)
+    return create - delete
+
+
+def make_overlap(x, y):
+    a, b = x
+    c, d = y
+    return (min(a, c), max(b, d))
+
+
+def overlap(x, y):
+    a, b = x
+    c, d = y
+    return (a < c and b >= c and b <= d) or (c < a and d >= a and d <= b)
+
+
+def inside(x, y):
+    """
+    Is x inside y?
+    """
+    a, b = x
+    c, d = y
+    if a >= c and b <= d:
+        return True
+
 
 # ---
 
@@ -25,9 +72,9 @@ def parse_input(data):
     fresh, items = set(), set()
     for line in data:
         line = line.strip()
-        if '-' in line:
-            a,b = line.split('-')
-            fresh.add((int(a), int(b)+1))
+        if "-" in line:
+            a, b = line.split("-")
+            fresh.add((int(a), int(b) + 1))
             # for x in range(int(a), int(b)+1):
             #     fresh.add(x)
             continue
