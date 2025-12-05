@@ -25,7 +25,18 @@ def solve(input, part):
             if all(some_sue[k] == v for k, v in props.items()):
                 return number
     else:
-        return
+        normal = some_sue.keys() - {'cats', 'trees', 'pomeranians', 'goldfish'}
+        for number, props in sues.items():
+            if (
+                all(some_sue[k] == v for k, v in props.items() if k in normal)
+                and ('cats' not in props or props["cats"] > some_sue["cats"])
+                and ('trees' not in props or props["trees"] > some_sue["trees"])
+                and ('pomeranians' not in props or props["pomeranians"] < some_sue["pomeranians"])
+                and ('goldfish' not in props or props["goldfish"] < some_sue["goldfish"])
+            ):
+                return number
+
+
 
 
 def parse_input(input):
