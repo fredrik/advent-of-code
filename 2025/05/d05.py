@@ -36,11 +36,9 @@ def flatten_fresh(fresh):
             delete.add(x)
             delete.add(y)
             create.add(make_overlap(x, y))
+            continue
 
-        # default: keep
-        create.add(x)
-        create.add(y)
-    return create - delete
+    return (fresh - delete) | create
 
 
 def make_overlap(x, y):
@@ -61,8 +59,7 @@ def inside(x, y):
     """
     a, b = x
     c, d = y
-    if a >= c and b <= d:
-        return True
+    return a >= c and b <= d
 
 
 # ---
@@ -75,8 +72,6 @@ def parse_input(data):
         if "-" in line:
             a, b = line.split("-")
             fresh.add((int(a), int(b) + 1))
-            # for x in range(int(a), int(b)+1):
-            #     fresh.add(x)
             continue
         if line.strip() == "":
             continue
