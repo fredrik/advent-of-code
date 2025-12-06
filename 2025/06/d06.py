@@ -1,5 +1,6 @@
 import math
 from aoc import get_input
+from itertools import groupby
 
 
 ops = {
@@ -9,15 +10,12 @@ ops = {
 
 
 def solve(input, part):
-    homework = parse_input(input)
-
     if part == 1:
-        print(homework)
-
+        homework = parse_input(input)
         return sum([ops[op](numbers) for op, numbers in homework])
-
     else:
-        return
+        homework = list(parse_input_again(input))
+        return sum([ops[op](numbers) for op, numbers in homework])
 
 
 def parse_input(input):
@@ -26,6 +24,34 @@ def parse_input(input):
         for i, x in enumerate(line.strip().split()):
             o[i].append(x)
     return [(p[-1], [int(x) for x in p[:-1]]) for p in o]
+
+
+def parse_input_again(input):
+    d = {}
+    for i, line in enumerate(input):
+        for j, c in enumerate(line):
+            d[(i, j)] = c
+
+    cols = []
+    for y in range(j):
+        op = d[(i, y)]
+        number = "".join([d[x, y] for x in range(i)]).strip()
+        cols.append((op, int(number)) if number != "" else (None, None))
+
+    groups = []
+    current = []
+    for c in cols:
+        if c == (None, None):
+            groups.append(current)
+            current = []
+        else:
+            current.append(c)
+    if current:
+        groups.append(current)
+
+    for group in groups:
+        op = group[0][0]
+        yield (op, [t[1] for t in group])
 
 
 if __name__ == "__main__":
