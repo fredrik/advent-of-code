@@ -10,25 +10,51 @@ def solve(input, part):
             for c, cell in enumerate(row):
                 if cell == "S":
                     grid[r + 1][c] = "|"
-                if cell == "." and grid[r-1][c] == "|":
-                    grid[r][c] = '|'
-                if cell == '^' and grid[r-1][c] == "|":
-                    grid[r][c+1] = "|"
-                    grid[r][c-1] = "|"
+                if cell == "." and grid[r - 1][c] == "|":
+                    grid[r][c] = "|"
+                if cell == "^" and grid[r - 1][c] == "|":
+                    grid[r][c + 1] = "|"
+                    grid[r][c - 1] = "|"
                     counter += 1
-
-            # print_grid(grid); print()
-
         return counter
     else:
-        return
+        return count_timelines(grid)
 
 
-def print_grid(grid):
-    for row in grid:
-        for cell in row:
-            print(cell, end="")
-        print()
+cache = {}
+
+
+def count_timelines(grid, start_r=0, start_c=0):
+    for r in range(start_r, len(grid)):
+        for c in range(start_c, len(grid[0])):
+            cell = grid[r][c]
+            if cell == "S":
+                grid[r + 1][c] = "|"
+            if cell == "." and grid[r - 1][c] == "|":
+                grid[r][c] = "|"
+            if cell == "^" and grid[r - 1][c] == "|":
+
+                left_copy = [row[:] for row in grid]
+                left_copy[r][c - 1] = "|"
+                left_key = (r, c, tuple(left_copy[r]))
+                if left_key in cache:
+                    left_count = cache[left_key]
+                else:
+                    cache[left_key] = count_timelines(left_copy, r, c + 1)
+                    left_count = cache[left_key]
+
+                right_copy = [row[:] for row in grid]
+                right_copy[r][c + 1] = "|"
+                right_key = (r, c, tuple(right_copy[r]))
+                if right_key in cache:
+                    right_count = cache[right_key]
+                else:
+                    cache[right_key] = count_timelines(right_copy, r, c + 1)
+                    right_count = cache[right_key]
+
+                return left_count + right_count
+        start_c = 0
+    return 1
 
 
 def parse_input(input):
