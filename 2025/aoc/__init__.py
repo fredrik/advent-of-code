@@ -1,5 +1,6 @@
 import os
 import sys
+from functools import lru_cache
 
 
 def get_input():
@@ -41,3 +42,14 @@ def find_paths(graph, start, end):
     dfs(start, end, visited, path, all_paths)
 
     return all_paths
+
+
+def count_paths(graph, start, end):
+    @lru_cache(maxsize=None)
+    def dfs(node):
+        if node == end:
+            return 1
+        else:
+            return sum(dfs(n) for n in graph[node])
+
+    return dfs(start)
