@@ -9,3 +9,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["aoc"]
+
+[tool.uv.workspace]
+members = [
+    "10",
+]
