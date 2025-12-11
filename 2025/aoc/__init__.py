@@ -14,3 +14,30 @@ def get_input():
 
     with open(filepath, "r") as f:
         return f.readlines()
+
+
+def find_paths(graph, start, end):
+    def dfs(start, end, visited, path, all_paths):
+        visited.add(start)
+        path.append(start)
+
+        # Base case.
+        if start == end:
+            all_paths.append(path[:])
+        else:
+            # Recursive case.
+            for neighbour in graph[start]:
+                if neighbour not in visited:
+                    dfs(neighbour, end, visited, path, all_paths)
+
+        # Backtrack.
+        path.pop()
+        visited.remove(start)
+
+    visited = set()
+    path = []
+    all_paths = []
+
+    dfs(start, end, visited, path, all_paths)
+
+    return all_paths
