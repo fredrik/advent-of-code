@@ -1,8 +1,7 @@
+from aoc import get_input
+
 import heapq
-import os
-
 from collections import defaultdict
-
 
 EAST = (0, 1)
 WEST = (0, -1)
@@ -11,30 +10,51 @@ SOUTH = (1, 0)
 
 
 def solve(input, part):
-    grid, start, end = parse_grid(input)
+    grid, start, end = parse_input(input)
     graph = make_graph(grid)
 
     if part == 1:
-        return part1(graph, start, end)
+        shortest_length, shortest_paths = find_shortest_paths(graph, (start, EAST), end)
+        return shortest_length
     else:
-        return part2(graph, start, end, grid)
+        shortest_length, shortest_paths = find_shortest_paths(graph, (start, EAST), end)
+        seats = set(node for path in shortest_paths for node, _ in path[:-1])
+        return len(seats)
 
 
-def part1(graph, start, end):
-    shortest_length, shortest_paths = find_shortest_paths(graph, (start, EAST), end)
-    return shortest_length
+def make_graph(grid):
+    graph = defaultdict(dict)
+
+    def add_edge(node, neighbour, weight):
+        graph[node][neighbour] = weight
+
+    for point in grid:
+        if grid[point] == "#":
+            continue
+
+        if grid[point] == "E":
+            graph[point] = {}
+            add_edge((point, EAST), point, weight=0)
+            add_edge((point, WEST), point, weight=0)
+            add_edge((point, NORTH), point, weight=0)
+            add_edge((point, SOUTH), point, weight=0)
+            continue
+
+        add_edge((point, EAST), (point, NORTH), weight=1000)
+        add_edge((point, EAST), (point, SOUTH), weight=1000)
+        add_edge((point, WEST), (point, NORTH), weight=1000)
+        add_edge((point, WEST), (point, SOUTH), weight=1000)
+        add_edge((point, NORTH), (point, WEST), weight=1000)
+        add_edge((point, NORTH), (point, EAST), weight=1000)
+        add_edge((point, SOUTH), (point, EAST), weight=1000)
+        add_edge((point, SOUTH), (point, WEST), weight=1000)
+
+        for p, d in neighbours(grid, point):
+            add_edge((point, d), (p, d), weight=1)
+
+    return graph
 
 
-def part2(graph, start, end, grid):
-    shortest_length, shortest_paths = find_shortest_paths(graph, (start, EAST), end)
-    seats = set(node for path in shortest_paths for node, _ in path[:-1])
-    return len(seats)
-
-
-# ---
-
-
-# dijsktra's algorithm.
 def find_shortest_paths(graph, start, end):
     distances = {node: float("inf") for node in graph}
     distances[start] = 0
@@ -51,7 +71,6 @@ def find_shortest_paths(graph, start, end):
 
         return paths
 
-    # priority queue.
     pq = [(0, start)]
 
     while pq:
@@ -81,12 +100,18 @@ def find_shortest_paths(graph, start, end):
     return distances[end], reconstruct_all_paths(end)
 
 
-# ---
+def neighbours(grid, point):
+    directions = [EAST, WEST, NORTH, SOUTH]
+    r, c = point
+    for dr, dc in directions:
+        n = (r + dr, c + dc)
+        if grid.get(n) in [".", "E"]:
+            yield n, (dr, dc)
 
 
-def parse_grid(input):
+def parse_input(input):
     grid, start, end = {}, None, None
-    for row, line in enumerate(input.strip().split("\n")):
+    for row, line in enumerate(input):
         for col, c in enumerate([c for c in line.strip()]):
             grid[(row, col)] = c
             if c == "S":
@@ -97,67 +122,7 @@ def parse_grid(input):
     return grid, start, end
 
 
-def make_graph(grid):
-    graph = defaultdict(dict)
-
-    def add_edge(node, neighbour, weight):
-        graph[node][neighbour] = weight
-
-    for point in grid:
-        if grid[point] == "#":
-            continue
-
-        if grid[point] == "E":
-            # edge-case for end of graph.
-            # it doesn't matter which way we're facing.
-            graph[point] = {}
-            add_edge((point, EAST), point, weight=0)
-            add_edge((point, WEST), point, weight=0)
-            add_edge((point, NORTH), point, weight=0)
-            add_edge((point, SOUTH), point, weight=0)
-            continue
-
-        # add expensively weighted edges for turning.
-        add_edge((point, EAST), (point, NORTH), weight=1000)
-        add_edge((point, EAST), (point, SOUTH), weight=1000)
-        add_edge((point, WEST), (point, NORTH), weight=1000)
-        add_edge((point, WEST), (point, SOUTH), weight=1000)
-        add_edge((point, NORTH), (point, WEST), weight=1000)
-        add_edge((point, NORTH), (point, EAST), weight=1000)
-        add_edge((point, SOUTH), (point, EAST), weight=1000)
-        add_edge((point, SOUTH), (point, WEST), weight=1000)
-
-        for p, d in neighbours(grid, point):
-            # point and direction of reachable neighbour.
-            # this is moving 'forward', so the weight is 1.
-            add_edge((point, d), (p, d), weight=1)
-
-    return graph
-
-
-def neighbours(grid, point):
-    directions = [EAST, WEST, NORTH, SOUTH]
-    r, c = point
-    for dr, dc in directions:
-        n = (r + dr, c + dc)
-        if grid.get(n) in [".", "E"]:
-            yield n, (dr, dc)
-
-
-# ---
-
-
-def get_input_data():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-
-    with open(filename, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    data = get_input_data()
+    data = get_input()
     print("part 1:", solve(data, 1))
     print("part 2:", solve(data, 2))

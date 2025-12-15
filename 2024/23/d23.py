@@ -1,10 +1,9 @@
-import os
-
+from aoc import get_input
 from collections import defaultdict
 
 
-def solve(data, part):
-    graph = make_graph(edges(data))
+def solve(input, part):
+    graph = make_graph(parse_input(input))
 
     if part == 1:
         return part1(graph)
@@ -29,12 +28,9 @@ def part2(graph):
     return ",".join(sorted(largest_clique))
 
 
-# ---
-
-
-def edges(data):
-    for line in data.splitlines():
-        a, b = line.split("-")
+def parse_input(input):
+    for line in input:
+        a, b = line.strip().split("-")
         yield a, b
 
 
@@ -58,27 +54,14 @@ def bron_kerbosch(r, p, x, graph, clique):
         return
     for v in set(p):
         n = graph[v]
-        bron_kerbosch(r.union(set([v])), p.intersection(n), x.intersection(n), graph, clique)
+        bron_kerbosch(
+            r.union(set([v])), p.intersection(n), x.intersection(n), graph, clique
+        )
         p.remove(v)
         x.add(v)
 
 
-# ---
-
-
-def get_input_data():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-        # todo: make sure path is relative and in the same directory and exists and so on etc
-    else:
-        # default
-        filename = "input.txt"
-
-    with open(filename, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    data = get_input_data()
+    data = get_input()
     print("part 1:", solve(data, 1))
     print("part 2:", solve(data, 2))

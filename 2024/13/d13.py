@@ -1,29 +1,19 @@
-import os
+from aoc import get_input
+
 import re
 
-cost = {
-    "a": 3,
-    "b": 1,
-}
+COST = {"a": 3, "b": 1}
 
 
-def solve(input, part2):
+def solve(input, part):
     machines = parse_input(input)
-    # Button A: X+94, Y+34
-    # Button B: X+22, Y+67
-    # Prize: X=8400, Y=5400
-    # =>
-    # machine: {'a': (94, 34), 'b': (22, 67), 'prize': (8400, 5400)}
-
-    # so, find 8400 = m*94 + n*22 and 5400 = m*34 + n*67
-    # while, I think, minimizing 3*m + n
 
     costs = []
     for index, machine in enumerate(machines):
-        solutions = find_solution(machine, 10000000000000 if part2 else 0)
+        solutions = find_solution(machine, 10000000000000 if part == 2 else 0)
 
-        for m, n, cost in solutions:
-            costs.append(cost)
+        for m, n, c in solutions:
+            costs.append(c)
 
     return sum(costs)
 
@@ -40,7 +30,7 @@ def find_solution(machine, prize_offset):
     j = (py * ax - px * ay) / (ax * by - ay * bx)
 
     if (i == int(i)) and (j == int(j)):
-        return [(int(i), int(j), int(cost["a"] * i + cost["b"] * j))]
+        return [(int(i), int(j), int(COST["a"] * i + COST["b"] * j))]
     else:
         return []
 
@@ -59,17 +49,7 @@ def parse_input(input):
     return machines
 
 
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
-    else:
-        filename = "input.small"
-
-    with open(filename, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    input = choose_input()
-    print("part 1", solve(input, False))
-    print("part 2", solve(input, True))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

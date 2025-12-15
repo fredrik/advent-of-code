@@ -1,9 +1,11 @@
+from aoc import get_input
+
 import itertools
 from collections import deque, defaultdict
 
 
-def solve(input, part, diff_cutoff):
-    graph, start, end = parse_input(input)
+def solve(input, part):
+    graph, start, end, diff_cutoff = parse_input(input)
 
     distances = find_distances(graph, end)
 
@@ -22,7 +24,6 @@ def solve(input, part, diff_cutoff):
     return count
 
 
-# bfs.
 def find_distances(graph, target):
     distances = defaultdict(lambda: float("inf"))
     distances[target] = 0
@@ -45,22 +46,26 @@ def jumps(graph, x, y, jump):
     i = range(-jump, jump + 1)
     j = range(-jump, jump + 1)
     prod = itertools.product(i, j)
-    for dx, dy in [(x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)]:
+    for dx, dy in [
+        (x, y) for x, y in prod if abs(x) + abs(y) <= jump and (x, y) != (0, 0)
+    ]:
         nx, ny = x + dx, y + dy
-        if (nx, ny) in graph: # avoid walls by checking that the jump lands on a node.
+        if (nx, ny) in graph:
             yield (nx, ny)
 
 
-# ---
+def neighbours(graph, x, y):
+    for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+        nx, ny = x + dx, y + dy
+        if (nx, ny) in graph:
+            yield nx, ny
 
 
 def parse_input(input):
-    lines = input.strip().split("\n")
+    graph = defaultdict(set)
 
-    graph = defaultdict(set)  # adjacency
-
-    for y, row in enumerate(lines):
-        for x, cell in enumerate(row):
+    for y, row in enumerate(input):
+        for x, cell in enumerate(row.strip()):
             if cell == "#":
                 continue
             if cell == "S":
@@ -73,35 +78,15 @@ def parse_input(input):
         for n in neighbours(graph, x, y):
             graph[(x, y)].add(n)
 
-    return graph, start_position, end_position
-
-
-def neighbours(graph, x, y):
-    for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-        nx, ny = x + dx, y + dy
-        if (nx, ny) in graph:
-            yield nx, ny
-
-
-# ---
-
-
-import os
-
-
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
+    if len(input) > 20:
         diff_cutoff = 100
     else:
-        filename = "input.small"
         diff_cutoff = 50
 
-    with open(filename, "r") as f:
-        return f.read(), diff_cutoff
+    return graph, start_position, end_position, diff_cutoff
 
 
 if __name__ == "__main__":
-    input, diff_cutoff = choose_input()
-    print("part 1:", solve(input, 1, diff_cutoff))
-    print("part 2:", solve(input, 2, diff_cutoff))
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

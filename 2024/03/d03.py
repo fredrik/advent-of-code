@@ -1,42 +1,40 @@
+from aoc import get_input
+
 import re
 
 
-def part_1(input):
-    sum = 0
-    for line in input.strip().splitlines():
+def solve(input, part):
+    if part == 1:
+        muls = parse_input_part_1(input)
+        return sum(x * y for x, y in muls)
+    else:
+        muls = parse_input_part_2(input)
+        return sum(x * y for x, y in muls)
+
+
+def parse_input_part_1(input):
+    for line in input:
         for match in re.finditer(r"mul\((\d+),(\d+)\)", line):
             x = int(match.group(1))
             y = int(match.group(2))
-            sum += x * y
-
-    print(f"sum: {sum}")
+            yield x, y
 
 
-# ---
-
-small_input = """
-xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
-"""
-
-
-def choose_input():
-    import os
-
-    if os.environ.get("AOC_INPUT_FILE"):
-        with open(os.environ.get("AOC_INPUT_FILE"), "r") as file:
-            return file.read()
-    else:
-        return small_input
+def parse_input_part_2(input):
+    enabled = True
+    for line in input:
+        for match in re.finditer(r"(mul\((\d+),(\d+)\))|(do\(\))|(don\'t\(\))", line):
+            if match.group(0) == "do()":
+                enabled = True
+            if match.group(0) == "don't()":
+                enabled = False
+            if match.group(0).startswith("mul") and enabled:
+                x = int(match.group(2))
+                y = int(match.group(3))
+                yield x, y
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    part_1(input)
-
-# usage:
-#
-# for small input
-# $> uv run d03.py
-#
-# for large input
-# $> AOC_INPUT_FILE=input.txt uv run d03.py
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

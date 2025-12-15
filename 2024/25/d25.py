@@ -1,12 +1,18 @@
+from aoc import get_input
+
+
 def solve(input, part):
     locks, keys = parse_input(input)
 
-    count = 0
-    for lock in locks:
-        for key in keys:
-            if key_fits_lock(key, lock):
-                count += 1
-    return count
+    if part == 1:
+        count = 0
+        for lock in locks:
+            for key in keys:
+                if key_fits_lock(key, lock):
+                    count += 1
+        return count
+    else:
+        return "50 stars, baby!"
 
 
 def key_fits_lock(key, lock):
@@ -14,9 +20,6 @@ def key_fits_lock(key, lock):
         if key[i] + lock[i] > 5:
             return False
     return True
-
-
-# ---
 
 
 def parse_input(input):
@@ -39,23 +42,7 @@ def parse_input(input):
     return locks, keys
 
 
-# ---
-
-
-import os
-
-
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        filename = "input.txt"
-    else:
-        filename = "input.small"
-
-    with open(filename, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    input = choose_input()
-    # print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

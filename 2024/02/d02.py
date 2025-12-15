@@ -1,36 +1,13 @@
-def part_1_functional(input):
-    parsed_input = (list(map(int, line.split())) for line in input.strip().splitlines())
-    safe_reports = filter(
-        lambda report: report_is_safe(report),
-        parsed_input,
-    )
-    print(len(list(safe_reports)))
+from aoc import get_input
 
 
-def part_1_imperative(input):
-    safe_count = 0
-    for line in input.strip().splitlines():
-        report = list(map(int, line.split()))
-        if report_is_safe(report):
-            safe_count += 1
-    print(safe_count)
+def solve(input, part):
+    reports = parse_input(input)
 
-
-def part_2_imperative(input):
-    safe_count = 0
-    for line in input.strip().splitlines():
-        report = list(map(int, line.split()))
-        if report_is_somewhat_safe(report):
-            safe_count += 1
-    print(safe_count)
-
-
-def report_is_somewhat_safe(levels):
-    for i in range(len(levels)):
-        copy = levels.copy()
-        copy.pop(i)
-        if report_is_safe(copy):
-            return True
+    if part == 1:
+        return len([r for r in reports if report_is_safe(r)])
+    else:
+        return len([r for r in reports if report_is_somewhat_safe(r)])
 
 
 def report_is_safe(report):
@@ -41,38 +18,17 @@ def report_is_safe(report):
     return (is_increasing or is_decreasing) and differ_by_some
 
 
-# ---
-
-small_input = """
-7 6 4 2 1
-1 2 7 8 9
-9 7 6 2 1
-1 3 2 4 5
-8 6 4 4 1
-1 3 6 7 9
-"""
+def report_is_somewhat_safe(report):
+    for i in range(len(report)):
+        if report_is_safe(report[:i] + report[i + 1 :]):
+            return True
 
 
-def choose_input():
-    import os
-
-    if os.environ.get("AOC_INPUT_FILE"):
-        with open(os.environ.get("AOC_INPUT_FILE"), "r") as file:
-            return file.read()
-    else:
-        return small_input
+def parse_input(input):
+    return (list(map(int, line.split())) for line in input)
 
 
 if __name__ == "__main__":
-    input = choose_input()
-    part_1_functional(input)
-    part_1_imperative(input)
-    part_2_imperative(input)
-
-# usage:
-#
-# for small input
-# $> uv run d02.py
-#
-# for large input
-# $> AOC_INPUT_FILE=input.txt uv run d02.py
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

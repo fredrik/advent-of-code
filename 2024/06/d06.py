@@ -1,34 +1,34 @@
-import os
+from aoc import get_input
+
 from collections import defaultdict
 
 
-def part1(input):
+def solve(input, part):
     map = parse_input(input)
-    position = find_starting_pos(map)
-    direction = (-1, 0)
-    while True:
-        map[position] = "x"
-        next_position = (position[0] + direction[0], position[1] + direction[1])
 
-        if map[next_position] == "#":
-            direction = turn(direction)
+    if part == 1:
+        position = find_starting_pos(map)
+        direction = (-1, 0)
+        while True:
+            map[position] = "x"
             next_position = (position[0] + direction[0], position[1] + direction[1])
 
-        if map[next_position] == "":
-            return len(list(filter(lambda x: x == "x", map.values())))
+            if map[next_position] == "#":
+                direction = turn(direction)
+                next_position = (position[0] + direction[0], position[1] + direction[1])
 
-        position = next_position
+            if map[next_position] == "":
+                return len(list(filter(lambda x: x == "x", map.values())))
 
-
-def part2(input, window=None):
-    map = parse_input(input)
-    reachable_positions = evaluate_reachable_positions(map.copy())
-    loops = 0
-    for x, y in reachable_positions:
-        causes_loop = evaluate_position(map.copy(), (x, y), window)
-        if causes_loop:
-            loops += 1
-    return loops
+            position = next_position
+    else:
+        reachable_positions = evaluate_reachable_positions(map.copy())
+        loops = 0
+        for x, y in reachable_positions:
+            causes_loop = evaluate_position(map.copy(), (x, y))
+            if causes_loop:
+                loops += 1
+        return loops
 
 
 def evaluate_reachable_positions(map):
@@ -51,7 +51,7 @@ def evaluate_reachable_positions(map):
             return seen
 
 
-def evaluate_position(map, obstacle_position, window):
+def evaluate_position(map, obstacle_position):
     if obstacle_position == find_starting_pos(map):
         return False
 
@@ -100,23 +100,13 @@ def turn(direction):
 
 def parse_input(input):
     map = defaultdict(str)
-    lines = input.strip().splitlines()
-    for i, line in enumerate(lines):
+    for i, line in enumerate(input):
         for j, c in enumerate(line):
             map[(i, j)] = c
     return map
 
 
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        with open("input.txt", "r") as f:
-            return f.read()
-    else:
-        with open("input.mini", "r") as f:
-            return f.read()
-
-
 if __name__ == "__main__":
-    input = choose_input()
-    print(part1(input))
-    print(part2(input))
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

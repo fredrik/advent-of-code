@@ -1,24 +1,14 @@
-import os
+from aoc import get_input
 
 
-def part1(input):
+def solve(input, part):
     values = parse_input(input)
 
-    sum = 0
+    total = 0
     for key, value in values.items():
-        if solve_test_case(key, value):
-            sum += key
-    return sum
-
-
-def part2(input):
-    values = parse_input(input)
-
-    sum = 0
-    for key, value in values.items():
-        if solve_test_case(key, value, part2=True):
-            sum += key
-    return sum
+        if solve_test_case(key, value, part2=(part == 2)):
+            total += key
+    return total
 
 
 def solve_test_case(testvalue, numbers, part2=False):
@@ -26,11 +16,11 @@ def solve_test_case(testvalue, numbers, part2=False):
     while len(numbers) > 0:
         x = numbers.pop(0)
         new_sums = []
-        for sum in sums:
-            new_sums.append(sum + x)
-            new_sums.append(sum * x)
+        for s in sums:
+            new_sums.append(s + x)
+            new_sums.append(s * x)
             if part2:
-                new_sums.append(int(str(sum) + str(x)))
+                new_sums.append(int(str(s) + str(x)))
         sums = new_sums
     if testvalue in sums:
         return True
@@ -38,22 +28,13 @@ def solve_test_case(testvalue, numbers, part2=False):
 
 def parse_input(input):
     values = {}
-    for line in input.strip().split("\n"):
+    for line in input:
         testvalue, numbers = line.split(":")
         values[int(testvalue)] = [int(x) for x in numbers.strip().split(" ")]
     return values
 
 
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        with open("input.txt", "r") as f:
-            return f.read()
-    else:
-        with open("input.small", "r") as f:
-            return f.read()
-
-
 if __name__ == "__main__":
-    input = choose_input()
-    print(part1(input))
-    print(part2(input))
+    data = get_input()
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

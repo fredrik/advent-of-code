@@ -1,27 +1,21 @@
-import os
+from aoc import get_input
+
 from collections import defaultdict
 
 
-def part1(input):
+def solve(input, part):
     rules, updates = parse_input(input)
 
-    sum = 0
-    for update in updates:
-        if valid_update(update, rules):
-            sum += middle_element(update)
-    return sum
-
-
-def part2(input):
-    rules, updates = parse_input(input)
-
-    sum = 0
-    for update in updates:
-        if not valid_update(update, rules):
-            reordered = order_correctly(update, rules)
-            print(f"reordered: {reordered}")
-            sum += middle_element(reordered)
-    return sum
+    if part == 1:
+        return sum(
+            middle_element(update) for update in updates if valid_update(update, rules)
+        )
+    else:
+        return sum(
+            middle_element(order_correctly(update, rules))
+            for update in updates
+            if not valid_update(update, rules)
+        )
 
 
 def valid_update(update, rules):
@@ -67,16 +61,7 @@ def parse_input(input):
     return rules, updates
 
 
-def choose_input():
-    if os.environ.get("LARGE_INPUT"):
-        with open("input.txt", "r") as f:
-            return f.read()
-    else:
-        with open("input.mini", "r") as f:
-            return f.read()
-
-
 if __name__ == "__main__":
-    input = choose_input()
-    print(part1(input))
-    print(part2(input))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))
