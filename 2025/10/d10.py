@@ -2,57 +2,18 @@ from aoc import get_input
 from collections import deque
 import re
 
-
-# :(
-from scipy.optimize import milp, LinearConstraint, Bounds
-import numpy as np
+infinity = float("inf")
+epsilon = 1e-9
 
 
 def solve(input, part):
-    # for target, toggles in machines:
-    #     print(
-    #         format(target, '08b'),
-    #         ', '.join([
-    #             format(t, '08b') for t in toggles
-    #         ])
-    #     )
-
+    machines = list(parse_input(input, part))
     if part == 1:
-        machines = list(parse_input(input))
         return sum(presses(0, target, toggles) for target, toggles in machines)
     else:
-        machines = parse_input2(input)
-
-        # for joltages, toggles in machines:
-        #     print(joltages, toggles)
-        #     # least = least_joltage_presses(
-        #     #     (0,) * len(joltages),
-        #     #     joltages,
-        #     #     toggles)
-        #     # print(least)
-        #     print('-------------')
-        #     print()
-
-        return sum(ilp(target, toggles) for target, toggles in machines)
+        return sum(min_presses(target, toggles) for target, toggles in machines)
 
 
-def ilp(target, toggles):
-    toggles = np.array(toggles)
-    target = np.array(target)
-
-    result = milp(
-        c=np.ones(len(toggles)),
-        constraints=LinearConstraint(toggles.T, target, target),
-        bounds=Bounds(0, np.inf),
-        integrality=np.ones(len(toggles)),
-    )
-
-    if result.success:
-        return int(result.fun)
-    return 0
-
-
-# "least" presses!
 def presses(state, target, toggles):
     if state == target:
         return 0
@@ -71,63 +32,157 @@ def presses(state, target, toggles):
                 queue.append((neighbour, depth + 1))
 
 
-def parse_input(input):
-    def parse_lights(str):
-        return [True if s == "#" else False for s in str]
+def min_presses(target, toggles):
+    num_vars = len(toggles)
+    num_dims = len(target)
 
-    def parse_toggles(str):
-        return [
-            tuple(map(int, s.split(",")))
-            for s in str.replace("(", "").replace(")", "").split(" ")
-        ]
+    # Build constraint matrix: Ax <= b
+    # Equality constraints become Ax <= b AND -Ax <= -b
+    # Non-negativity: -x_i <= 0
+    constraints = [[0] * (num_vars + 1) for _ in range(2 * num_dims + num_vars)]
 
-    def to_binary(bitmask):
-        return int("".join("1" if b else "0" for b in bitmask), 2)
+    for i in range(num_vars):
+        constraints[~i][i] = -1
 
-    for line in input:
-        match = re.search(r"\[(.+)\] (.*) \{(.*)\}", line)
-        if match:
-            lights = parse_lights(match.group(1))
-            toggles = [
-                [i in positions for i in range(len(lights))]
-                for positions in parse_toggles(match.group(2))
-            ]
+    for i in range(num_dims):
+        for j in range(num_vars):
+            constraints[i][j] = toggles[j][i]
+            constraints[i + num_dims][j] = -toggles[j][i]
+        constraints[i][-1] = target[i]
+        constraints[i + num_dims][-1] = -target[i]
 
-            # lights and toggles are bit masks. convert to binary.
-            # [False, True, True, False] => 0110
-            yield (to_binary(lights), tuple(to_binary(t) for t in toggles))
+    return ilp(constraints)
 
 
-def parse_input2(input):
-    def parse_lights(str):
-        return [True if s == "#" else False for s in str]
+def ilp(constraints):
+    num_vars = len(constraints[0]) - 1
 
-    def parse_toggles(str):
-        return [
-            tuple(map(int, s.split(",")))
-            for s in str.replace("(", "").replace(")", "").split(" ")
-        ]
+    def branch(constraints, best):
+        value, solution = simplex(constraints, [1] * num_vars)
+        if value + epsilon >= best or value == -infinity:
+            return best
 
-    def parse_joltages(str):
-        return tuple(int(s.strip()) for s in str.split(","))
+        # Find first non-integer variable
+        fractional = next(
+            (
+                (i, int(v))
+                for i, v in enumerate(solution)
+                if abs(v - round(v)) > epsilon
+            ),
+            (-1, 0),
+        )
 
-    def to_binary(bitmask):
-        return int("".join("1" if b else "0" for b in bitmask), 2)
+        if fractional[0] == -1:
+            return min(best, value)
 
-    for line in input:
-        match = re.search(r"\[(.+)\] (.*) \{(.*)\}", line)
-        if match:
-            lights = parse_lights(match.group(1))
-            # toggles = parse_toggles(match.group(2))
-            toggles = tuple(
-                tuple([1 if i in positions else 0 for i in range(len(lights))])
-                for positions in parse_toggles(match.group(2))
+        var_idx, floor_val = fractional
+        lo_constraint = [0] * num_vars + [floor_val]
+        lo_constraint[var_idx] = 1
+        best = branch(constraints + [lo_constraint], best)
+        hi_constraint = [0] * num_vars + [~floor_val]
+        hi_constraint[var_idx] = -1
+        return branch(constraints + [hi_constraint], best)
+
+    best = branch(constraints, infinity)
+    return round(best) if best != infinity else 0
+
+
+def simplex(constraints, costs):
+    num_constraints = len(constraints)
+    num_vars = len(constraints[0]) - 1
+
+    non_basic = [*range(num_vars), -1]
+    basic = [*range(num_vars, num_vars + num_constraints)]
+    tableau = [[*row, -1] for row in constraints] + [
+        costs + [0, 0],
+        [0] * (num_vars + 2),
+    ]
+
+    for i in range(num_constraints):
+        tableau[i][-2], tableau[i][-1] = tableau[i][-1], tableau[i][-2]
+
+    def pivot(row, col):
+        scale = 1 / tableau[row][col]
+        for i in range(num_constraints + 2):
+            if i == row:
+                continue
+            for j in range(num_vars + 2):
+                if j != col:
+                    tableau[i][j] -= tableau[row][j] * tableau[i][col] * scale
+        for i in range(num_vars + 2):
+            tableau[row][i] *= scale
+        for i in range(num_constraints + 2):
+            tableau[i][col] *= -scale
+        tableau[row][col] = scale
+        basic[row], non_basic[col] = non_basic[col], basic[row]
+
+    def find(phase):
+        while True:
+            col = min(
+                (i for i in range(num_vars + 1) if phase or non_basic[i] != -1),
+                key=lambda c: (tableau[num_constraints + phase][c], non_basic[c]),
             )
-            joltages = parse_joltages(match.group(3))
+            if tableau[num_constraints + phase][col] > -epsilon:
+                return True
+            candidates = [
+                i for i in range(num_constraints) if tableau[i][col] > epsilon
+            ]
+            if not candidates:
+                return False
+            row = min(
+                candidates, key=lambda r: (tableau[r][-1] / tableau[r][col], basic[r])
+            )
+            pivot(row, col)
 
-            # lights and toggles are bit masks. convert to binary.
-            # [False, True, True, False] => 0110
-            yield (joltages, toggles)
+    tableau[-1][num_vars] = 1
+    row = min(range(num_constraints), key=lambda r: tableau[r][-1])
+
+    if tableau[row][-1] < -epsilon:
+        pivot(row, num_vars)
+        if not find(1) or tableau[-1][-1] < -epsilon:
+            return -infinity, None
+
+    for i in range(num_constraints):
+        if basic[i] == -1:
+            pivot(i, min(range(num_vars), key=lambda c: (tableau[i][c], non_basic[c])))
+
+    if find(0):
+        solution = [0] * num_vars
+        for i in range(num_constraints):
+            if 0 <= basic[i] < num_vars:
+                solution[basic[i]] = tableau[i][-1]
+        return sum(costs[i] * solution[i] for i in range(num_vars)), solution
+    return -infinity, None
+
+
+def parse_input(input, part):
+    def parse_toggles(str):
+        return [
+            tuple(map(int, s.split(",")))
+            for s in str.replace("(", "").replace(")", "").split(" ")
+        ]
+
+    def to_binary(bitmask):
+        return int("".join("1" if b else "0" for b in bitmask), 2)
+
+    for line in input:
+        match = re.search(r"\[(.+)\] (.*) \{(.*)\}", line)
+        if match:
+            lights = [s == "#" for s in match.group(1)]
+            positions = parse_toggles(match.group(2))
+
+            if part == 1:
+                # lights and toggles as bitmasks for XOR
+                toggles = [[i in pos for i in range(len(lights))] for pos in positions]
+                yield (to_binary(lights), tuple(to_binary(t) for t in toggles))
+            else:
+                # joltages and toggles as tuples for ILP
+                joltages = tuple(int(s.strip()) for s in match.group(3).split(","))
+                toggles = tuple(
+                    tuple(1 if i in pos else 0 for i in range(len(lights)))
+                    for pos in positions
+                )
+                yield (joltages, toggles)
 
 
 if __name__ == "__main__":
