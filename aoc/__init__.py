@@ -2,6 +2,7 @@ import os
 import sys
 from functools import lru_cache, cache
 from heapq import heappush, heappop
+from collections import defaultdict
 
 
 def get_input(raw=False):
@@ -19,9 +20,25 @@ def get_input(raw=False):
 
     with open(filepath, "r") as f:
         if raw:
-            return f.read()
+            return f.read().strip()
         else:
             return f.readlines()
+
+
+def parse_grid(input):
+    g = defaultdict(str)
+    for y, line in enumerate(input):
+        for x, c in enumerate(line.strip()):
+            g[(x, y)] = c
+    return g
+
+
+def neighbours(grid, key):
+    x, y = key
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            if dx or dy:  # skip (0, 0)
+                yield grid.get((x + dx, y + dy))
 
 
 def find_paths(graph, start, end):
@@ -62,6 +79,7 @@ def count_paths(graph, start, end):
             return sum(dfs(n) for n in graph[node])
 
     return dfs(start)
+
 
 def all_shortest_paths(graph, src, dst):
     # bfs all-shortest-paths
