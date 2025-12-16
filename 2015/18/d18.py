@@ -12,7 +12,17 @@ def solve(input, part):
             grid = mutate_grid(grid)
         return sum(v == "#" for v in grid.values())
     else:
-        return
+        always_on = [(0, 0), (0, 99), (99, 0), (99, 99)]
+
+        for _ in range(100):
+            for k in always_on:
+                grid[k] = "#"
+            grid = mutate_grid(grid)
+
+        for k in always_on:
+            grid[k] = "#"
+
+        return sum(v == "#" for v in grid.values())
 
 
 def mutate_grid(grid):
