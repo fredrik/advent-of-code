@@ -1,12 +1,11 @@
+from aoc import get_input
 import re
-import os
-import sys
 from collections import defaultdict
 from itertools import permutations
 
 
-def solve(input, part):
-    people, g = parse_input(input)
+def solve(data, part):
+    people, g = parse_input(data)
 
     if part == 1:
         return max(rate_happiness(order, g) for order in permutations(people))
@@ -27,10 +26,10 @@ def rate_happiness(order, g):
     return happiness
 
 
-def parse_input(input):
+def parse_input(data):
     people = set()
     g = defaultdict(int)
-    for line in input:
+    for line in data.splitlines():
         match = re.search(
             r"(\w+) would (\w+) (\d+) happiness units by sitting next to (\w+)\.",
             line.strip(),
@@ -42,17 +41,7 @@ def parse_input(input):
     return people, g
 
 
-# ---
-
-
-def get_input():
-    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

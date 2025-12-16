@@ -1,5 +1,5 @@
+from aoc import get_input
 import hashlib
-import os
 
 
 def solve(data, part):
@@ -22,22 +22,7 @@ def compare(h, part):
     0 / 0  # !
 
 
-# ---
-
-
-def get_input_data():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-
-    with open(filepath, "r") as f:
-        return f.read()
-
-
 if __name__ == "__main__":
-    data = get_input_data()
+    data = get_input(raw=True)
     print("part 1:", solve(data, 1))
     print("part 2:", solve(data, 2))

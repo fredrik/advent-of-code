@@ -1,20 +1,20 @@
+from aoc import get_input
 import re
-import os
 
 from string import ascii_lowercase
 
 
 # Santa's previous password expired, and he needs help choosing a new one.
-def solve(input, part):
-    initial_password = parse_input(input)
+def solve(data, part):
+    initial_password = parse_input(data)
 
     if part == 1:
         return next_password(initial_password)
     else:
         return next_password(next_password(initial_password))
 
-def parse_input(input):
-    return input[0].strip()
+def parse_input(data):
+    return data.strip().split('\n')[0].strip()
 
 def next_password(password):
     for password in next_passwords(password):
@@ -67,20 +67,7 @@ def valid_password(password):
     return True
 
 
-# ---
-
-
-def get_input():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

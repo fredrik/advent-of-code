@@ -1,11 +1,10 @@
+from aoc import get_input
 import re
-import os
-import sys
 from collections import defaultdict
 
 
-def solve(input, part):
-    reindeers = list(parse_input(input))
+def solve(data, part):
+    reindeers = list(parse_input(data))
     seconds = 2503
 
     if part == 1:
@@ -38,8 +37,8 @@ def winner(reindeers, s):
     return max(distances, key=distances.get)
 
 
-def parse_input(input):
-    for line in input:
+def parse_input(data):
+    for line in data.splitlines():
         match = re.search(
             r"(\w+) can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.",
             line.strip(),
@@ -53,17 +52,7 @@ def parse_input(input):
         yield (name, speed, duration, rest)
 
 
-# ---
-
-
-def get_input():
-    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

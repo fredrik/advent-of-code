@@ -1,5 +1,5 @@
+from aoc import get_input
 import re
-import os
 from collections import defaultdict
 from itertools import permutations
 
@@ -7,8 +7,8 @@ from itertools import permutations
 # visit each location exactly once. What is the shortest distance he can travel
 # to achieve this?
 
-def solve(input, part):
-    g = parse_input(input)
+def solve(data, part):
+    g = parse_input(data)
     distances = []
     for path in permutations(g.keys()):
         distance = path_distance(g, path)
@@ -22,9 +22,9 @@ def solve(input, part):
 # data structure:
 # {'London': {'Dublin': '464', 'Belfast': '518'}, 'Dublin': {'Belfast': '141'}}
 
-def parse_input(input):
+def parse_input(data):
     g = defaultdict(dict)
-    for line in input:
+    for line in data.splitlines():
         parts = re.match(r'(\w+) to (\w+) = (\d+)', line)
         g[parts[1]][parts[2]] = int(parts[3])
         g[parts[2]][parts[1]] = int(parts[3])
@@ -38,19 +38,8 @@ def path_distance(g, path):
         distance += g[a][b]
     return distance
 
-# ---
-
-def get_input():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
 
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

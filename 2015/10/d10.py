@@ -1,7 +1,7 @@
-import os
+from aoc import get_input
 
-def solve(input, part):
-    seq, iterations = parse_input(input)
+def solve(data, part):
+    seq, iterations = parse_input(data)
 
     if part == 1:
         for _ in range(iterations):
@@ -33,22 +33,12 @@ def next_seq(seq):
 
     return r
 
-def parse_input(input):
-    return [int(x) for x in input[0].strip()], int(input[1].strip())
-
-# ---
-
-def get_input():
-    if os.environ.get("INPUT"):
-        filename = os.environ.get("INPUT")
-    else:
-        filename = "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
+def parse_input(data):
+    lines = data.strip().split('\n')
+    return [int(x) for x in lines[0].strip()], int(lines[1].strip())
 
 
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

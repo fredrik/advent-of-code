@@ -1,6 +1,5 @@
+from aoc import get_input
 import re
-import os
-import sys
 from collections import defaultdict
 
 some_sue = {
@@ -17,8 +16,8 @@ some_sue = {
 }
 
 
-def solve(input, part):
-    sues = parse_input(input)
+def solve(data, part):
+    sues = parse_input(data)
 
     if part == 1:
         for number, props in sues.items():
@@ -39,9 +38,9 @@ def solve(input, part):
 
 
 
-def parse_input(input):
+def parse_input(data):
     sues = {}
-    for line in input:
+    for line in data.splitlines():
         match = re.search(r"Sue (\d+): (.*)", line)
         number, rest = int(match[1]), match[2]
         sues[number] = defaultdict(
@@ -55,17 +54,7 @@ def parse_input(input):
     return sues
 
 
-# ---
-
-
-def get_input():
-    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

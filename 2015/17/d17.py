@@ -1,10 +1,9 @@
-import os
-import sys
+from aoc import get_input
 from functools import cache
 
 
-def solve(input, part):
-    containers = parse_input(input)
+def solve(data, part):
+    containers = parse_input(data)
 
     combos = fitting_combinations(containers, 150)
 
@@ -28,21 +27,11 @@ def fitting_combinations(cs, n, picked=tuple()):
     return combos
 
 
-def parse_input(input):
-    return tuple(int(line) for line in input)
-
-
-# ---
-
-
-def get_input():
-    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
+def parse_input(data):
+    return tuple(int(line) for line in data.splitlines())
 
 
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))

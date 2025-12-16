@@ -1,11 +1,10 @@
+from aoc import get_input
 import math
 import re
-import os
-import sys
 
 
-def solve(input, part):
-    ingredients = list(parse_input(input))
+def solve(data, part):
+    ingredients = list(parse_input(data))
 
     if part == 1:
         return max(recipe_score(ingredients))
@@ -37,8 +36,8 @@ def partitions(n, parts):
                 yield (i,) + rest
 
 
-def parse_input(input):
-    for line in input:
+def parse_input(data):
+    for line in data.splitlines():
         match = re.search(
             r"(\w+): capacity ([\-\d]+), durability ([\-\d]+), flavor ([\-\d]+), texture ([\-\d]+), calories ([\-\d]+)",
             line.strip(),
@@ -55,17 +54,7 @@ def parse_input(input):
         yield (cap, dur, fla, tex, cal)
 
 
-# ---
-
-
-def get_input():
-    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
-    filepath = os.path.join(os.path.dirname(__file__), filename)
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 if __name__ == "__main__":
-    input = get_input()
-    print("part 1:", solve(input, 1))
-    print("part 2:", solve(input, 2))
+    data = get_input(raw=True)
+    print("part 1:", solve(data, 1))
+    print("part 2:", solve(data, 2))
