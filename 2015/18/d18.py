@@ -1,7 +1,6 @@
 # --- Day 18: Like a GIF For Your Yard ---
 
 from aoc import get_input, parse_grid, neighbours
-from collections import defaultdict
 
 
 def solve(input, part):
@@ -12,16 +11,9 @@ def solve(input, part):
             grid = mutate_grid(grid)
         return sum(v == "#" for v in grid.values())
     else:
-        always_on = [(0, 0), (0, 99), (99, 0), (99, 99)]
-
+        grid = set_always_on(grid)
         for _ in range(100):
-            for k in always_on:
-                grid[k] = "#"
-            grid = mutate_grid(grid)
-
-        for k in always_on:
-            grid[k] = "#"
-
+            grid = set_always_on(mutate_grid(grid))
         return sum(v == "#" for v in grid.values())
 
 
@@ -31,6 +23,13 @@ def mutate_grid(grid):
         return (grid[k] == "#" and n == 2) or (n == 3)
 
     return {k: "#" if on(k) else "." for k in grid}
+
+
+def set_always_on(grid):
+    always_on = [(0, 0), (0, 99), (99, 0), (99, 99)]
+    for k in always_on:
+        grid[k] = "#"
+    return grid
 
 
 if __name__ == "__main__":
