@@ -20,10 +20,22 @@ def solve(input, part):
                     )
         return len(distinct)
     else:
+        # Build reverse replacements (product -> source)
+        reverse = []
+        for source, products in replacements.items():
+            for p in products:
+                reverse.append((p, source))
+        # Sort by length descending (greedy: replace longest first)
+        reverse.sort(key=lambda x: -len(x[0]))
 
-        
-
-        return
+        steps = 0
+        while molecule != "e":
+            for product, source in reverse:
+                if product in molecule:
+                    molecule = molecule.replace(product, source, 1)
+                    steps += 1
+                    break
+        return steps
 
 
 def parse_input(input):
